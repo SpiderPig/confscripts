@@ -1,0 +1,4 @@
+dzconky.sh -Script for my dzen task bar.  Requires dzen2, conky, hddtemp, lm_sensors
+
+xmonad.hs -Xmonad configuration script for Xmonad 10.x
+
