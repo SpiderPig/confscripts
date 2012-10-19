@@ -1,0 +1,5 @@
+bashrc -Sets the prompt using colors as well as send escape codes to screen using the PROMPT_COMMAND.
+        Sends a screen hardstatus string in order to display current user/host info.
+        Sets the screen window title to the highest level of the PWD when at a prompt but displays the current running command when entered.
+
+screenrc -Formats a hardstatus bar to display open windows and their pwd/running process as well as the hardstatus setting.
