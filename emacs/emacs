@@ -1,0 +1,258 @@
+(add-to-list 'load-path "~/.emacs.d/lisp/")
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector ["#212526" "#ff4b4b" "#b4fa70" "#fce94f" "#729fcf" "#ad7fa8" "#8cc4ff" "#eeeeec"])
+ '(backup-by-copying t)
+ '(backup-directory-alist (quote (("." . "~/tmp/ebak"))))
+ '(comint-scroll-to-bottom-on-input t)
+ '(cua-mode t nil (cua-base))
+ '(custom-enabled-themes (quote (bluespider)))
+ '(custom-safe-themes (quote ("71559d928d2cc772882e58b0fb5334dbab76c4cdd0ec5eddd9c80efc4d5a35fa" default)))
+ '(delete-old-versions (quote other))
+ '(desktop-files-not-to-save "^$")
+ '(desktop-save t)
+ '(desktop-save-mode t)
+ '(ediff-split-window-function (quote split-window-horizontally))
+ '(ediff-window-setup-function (quote ediff-setup-windows-plain))
+ '(even-window-heights nil)
+ '(gdb-create-source-file-list nil)
+ '(global-auto-revert-mode t)
+ '(indent-tabs-mode nil)
+ '(indicate-empty-lines t)
+ '(kill-whole-line t)
+ '(mouse-autoselect-window t)
+ '(mouse-yank-at-point t)
+ '(save-place t nil (saveplace))
+ '(scroll-bar-mode (quote left))
+ '(scroll-conservatively 100000)
+ '(scroll-margin 10)
+ '(scroll-preserve-screen-position 1)
+ '(server-mode t)
+ '(server-raise-frame nil)
+ '(show-paren-mode t)
+ '(tool-bar-mode nil)
+ '(tool-bar-position (quote right))
+ '(vc-make-backup-files t)
+ '(version-control t)
+ '(visible-bell t))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:family "DejaVu Sans Mono" :foundry "unknown" :slant normal :weight normal :height 90 :width normal)))))
+
+(require 'package)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(let ((default-directory "~/.emacs.d/elpa"))
+  (normal-top-level-add-subdirs-to-load-path))
+
+
+(add-to-list 'auto-mode-alist '("\\.fsm\\'" . c-mode))
+(add-to-list 'auto-mode-alist '("\\.rdr\\'" . lisp-mode))
+
+(setq auto-mode-alist (append '(("\\.s?html\\.?.*\\'" . html-mode)
+				("\\.java\\'" . jde-mode) 
+				("\\.[hg]s\\'" . haskell-mode)
+                                ("\\.hs\\'" . haskell-mode)
+				("\\.hi\\'" . haskell-mode)
+				("\\.l[hg]s\\'" . literate-haskell-mode))
+			      auto-mode-alist))
+
+
+;; set my c-mode indent rules
+(setq c-mode-common-hook
+      '(lambda ()
+
+         (setq
+          ;;  c-default-style "linux"
+          c-basic-offset 4
+          c-tab-always-indent nil
+          c-indent-level 4
+          c-continued-statement-offset 2
+          c-argdecl-indent 4
+          case-fold-search nil
+          tab-width 8)
+
+         (c-add-style '"msytsma"
+                      '((c-basic-offset . 4)
+                        (c-comment-only-line-offset . 0)
+                        (c-offsets-alist . ((statement-block-intro . +)
+                                            (knr-argdecl-intro . +)
+                                            (substatement . *)
+                                            (substatement-open . 0)
+                                            (label . 0)
+                                            (case-label . *)
+                                            (statement-cont . *)
+                                            (statement-case-intro . *)
+                                            )))
+                      t)
+
+;;         (add-to-list 'c-cleanup-list 'space-before-funcall)
+         (add-to-list 'c-cleanup-list 'compact-empty-funcall)
+         (add-to-list 'c-cleanup-list 'empty-defun-braces)
+         (add-to-list 'c-cleanup-list 'one-liner-defun)
+         (add-to-list 'c-cleanup-list 'scope-operator)
+
+         (modify-syntax-entry ?_ "w" c++-mode-syntax-table)
+         (modify-syntax-entry ?_ "w" c-mode-syntax-table)
+         (linum-mode t)
+))
+
+
+(defun maybe-svncommit-set-hook ()
+  (when (and buffer-file-name
+             (string-match "svn-commit" buffer-file-name))
+    (set-fill-column 79)
+    (auto-fill-mode t)
+    (flyspell-mode t)
+;;    (linum-mode t)
+))
+(add-hook 'text-mode-hook 'maybe-svncommit-set-hook)
+(add-to-list 'auto-mode-alist '("svn-commit\\(\\.[0-9]+\\)?\\.tmp$" . text-mode))
+
+;; start speedbar if we're using a window system
+;; (when window-system
+;;    (speedbar t))
+
+;; make yes/no questions y/n
+(fset 'yes-or-no-p 'y-or-n-p)
+
+(global-set-key [(control tab)] 'other-window)
+(global-set-key [M-left] 'windmove-left) 
+(global-set-key [M-right] 'windmove-right) 
+(global-set-key [M-up] 'windmove-up) 
+(global-set-key [M-down] 'windmove-down)
+
+(global-set-key [S-mouse-2] 'browse-url-at-mouse)
+(global-set-key (kbd "C-x C-b") 'buffer-menu)
+
+(global-set-key [f11] 'menu-bar-mode)
+
+;; enabel cscope C-c s commands
+(require 'xcscope)
+
+;; enable remote file editing
+(require 'tramp)
+(setq tramp-default-method "scp")
+
+;; enable swapping windows
+;(require 'transpose-frame)
+;(global-set-key (kbd "<C-S-iso-lefttab>") 'rotate-frame)
+
+(defun transpose-buffers (arg)
+  "Transpose the buffers shown in two windows."
+  (interactive "p")
+  (let ((selector (if (>= arg 0) 'next-window 'previous-window)))
+    (while (/= arg 0)
+      (let ((this-win (window-buffer))
+            (next-win (window-buffer (funcall selector))))
+        (set-window-buffer (selected-window) next-win)
+        (set-window-buffer (funcall selector) this-win)
+        (select-window (funcall selector)))
+      (setq arg (if (plusp arg) (1- arg) (1+ arg))))))
+(global-set-key (kbd "<C-S-iso-lefttab>") 'transpose-buffers)
+
+;; enable a single frame mode for speedbar
+(require 'sr-speedbar)
+
+;; simple book marks
+(require 'bm)
+(global-set-key (kbd "C-b") 'bm-toggle)
+(global-set-key (kbd "M-<next>")   'bm-next)
+(global-set-key (kbd "M-<prior>") 'bm-previous)
+
+;; (require 'breadcrumb)
+;; (global-set-key (kbd "C-b")        'bc-set)
+;; (global-set-key (kbd "M-<next>")   'bc-next)
+;; (global-set-key (kbd "M-<prior>")  'bc-previous)
+;; (global-set-key (kbd "M-<down>")   'bc-local-next)
+;; (global-set-key (kbd "M-<up>")     'bc-local-previous)
+;; (global-set-key (kbd "C-S-b")      'bc-list)
+
+
+;; transparency
+ ;;(set-frame-parameter (selected-frame) 'alpha '(<active> [<inactive>]))
+;;(set-frame-parameter (selected-frame) 'alpha '(70 70))
+;;(add-to-list 'default-frame-alist '(alpha 70 70))
+
+(defun dired-follow-file ()
+ "In dired, visit the file or directory on this line.
+If a directory is on the current line, replace the current
+dired buffer with one containing the contents of the directory.
+Otherwise, invoke `dired-find-file' on the file."
+ (interactive)
+ (let ((filename (dired-get-filename)))
+   ;; if the file is a directory, replace the buffer with the
+   ;;  directory's contents
+   (if (file-directory-p filename)
+       (find-alternate-file filename)
+     ;; otherwise simply perform a normal `dired-find-file'
+     (dired-find-file))))
+
+(add-hook 'dired-mode-hook
+          (lambda ()
+            (local-set-key "\C-m" 'dired-follow-file)
+            (local-set-key "e" 'dired-follow-file)
+            (local-set-key "f" 'dired-follow-file)
+            (local-set-key [mouse-1] 'dired-follow-file)
+            (make-local-variable 'scroll-margin)
+            (setq scroll-margin 0) ))
+
+
+(put 'dired-find-alternate-file 'disabled nil)
+
+;; chage some settings for shells and gdb
+(add-hook 'comint-mode-hook
+          (lambda ()
+            (make-local-variable 'scroll-margin)
+            (setq scroll-margin 0)))
+
+; (add-hook 'gdb-mode-hook
+;           (lambda ()
+; ;            (define-key (current-local-map) (kbd "TAB") (insert-char 9 1))
+;             (define-key (current-local-map) (kbd "TAB") 'self-insert-command)
+; ))
+
+;; modify buffer menu
+;; Opens files in other window unless there is only one window
+(defun My-buff-menu-open ()
+  (interactive)
+  (if (= (length (window-list)) 1)
+      (Buffer-menu-this-window) (Buffer-menu-other-window)))
+
+(add-hook 'Buffer-menu-mode-hook
+          (lambda ()
+            (make-local-variable 'scroll-margin)
+            (setq scroll-margin 0)
+            (local-set-key (kbd "RET") 'My-buff-menu-open)
+            (local-set-key (kbd "M-RET") 'Buffer-menu-this-window) ))
+
+(add-hook 'minibuffer-setup-hook
+          (lambda ()
+            (make-local-variable 'scroll-margin)
+            (setq scroll-margin 0)))
+
+(add-hook 'cscope-result-mode-hook
+          (lambda ()
+            (make-local-variable 'scroll-margin)
+            (setq scroll-margin 0)))
+
+;; force saving backups on every save
+(defun force-backup-of-buffer ()
+  (setq buffer-backed-up nil))
+(add-hook 'before-save-hook  'force-backup-of-buffer)
+
+;; auto save the desktop state
+(defun my-desktop-save ()
+  (interactive)
+  ;; Don't call desktop-save-in-desktop-dir, as it prints a message.
+  (if (eq (desktop-owner) (emacs-pid))
+      (desktop-save desktop-dirname)))
+(add-hook 'auto-save-hook 'my-desktop-save)
+

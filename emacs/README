@@ -1,0 +1,9 @@
+emacs       - My .emacs file which contains functions and settings most of which were found all over the internet.  some usefull custom settings, c-mode indent rules, switching buffer options based on file name (svn-commit margins), function to transpose buffers between windows, set ups for some usefull modules(bm, tramp, xcscope), modifies the behavior of dired windows, modifies the behavior of the buffer menu, mode hooks to customize behavior of different buffer windows, saves backup files on ever save in seperate temp dir, saves the desktop state so it will resume with your last used buffers..
+
+
+bluespider-theme.el
+           - A custom theme for emacs 24.  Black background with high contrast colors in different shades of blue.
+
+
+color-theme-bluespider.el
+           - A color-theme version for emacs 23.
