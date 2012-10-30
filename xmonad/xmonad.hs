@@ -119,7 +119,6 @@ myGridSpawnColorizer s active =
 myGSSpawnConfig = gsconfig myGridSpawnColorizer
 
 myGridSpawnList = ["audacious", "alienarena",  "emacs", "firefox",  "gimp", "gwenview", "k3b", "kate", "kcalc", "oocalc", "oowriter", "vlc", "VirtualBox", "urxvt -e /usr/bin/screen -RR -m"]
-
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
 --
@@ -202,10 +201,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_q     ), io (exitHook >> exitWith ExitSuccess))
 
     -- Restart xmonad
-    , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
+--    , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
+    -- Hack up a restart because my state info is too large for the command line so xmonad's built in restart fails
+    , ((modm              , xK_q     ), spawn "xmonad --recompile && ((sleep 3;xmonad) & killall xmonad-x86_64-linux)")
+--    , ((modm              , xK_q     ), spawn "xmonad --recompile;" >> restart "xmonad-x86_64-linux" False)
 
-    , ((modm              , xK_r     ), spawn "xmonad --recompile; xmonad --restart" >> io exitHook)
-    , ((modm .|. shiftMask, xK_r     ), spawn "killall conky; killall dzconky.sh; killall dzen2; xmonad --recompile; xmonad --restart; ~/.xmonad/dzconky.sh")
+    -- Restart my dzen status bar.
+    , ((modm              , xK_r     ), spawn "xmonad --recompile;" >> io exitHook)
+    , ((modm .|. shiftMask, xK_r     ), spawn "killall conky; killall dzconky.sh; killall dzen2; xmonad --recompile; ~/.xmonad/dzconky.sh")
 
     -- screen lock and suspends
     , ((modm .|. shiftMask, xK_l ), spawn "xscreensaver-command -lock || xlock")
@@ -276,7 +279,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- restarting (with 'mod-q') to reset your layout state to the new
 -- defaults, as xmonad preserves your old layout settings by default.
 --
-defaultLayout = avoidStruts (tiled ||| tiled3 ||| mir ||| maxim) ||| noBorders  Full
+defaultLayout = avoidStruts $ renamed [CutWordsLeft 4] $ leftside $ reflectHoriz $ rightside $ reflectHoriz $ (tiled ||| tiled3 ||| mir ||| maxim) ||| noBorders  Full
   where
     -- default tiling algorithm partitions the screen into two panes
     tiled   = renamed [Replace "Tall"] $ spacing 6 $ ResizableTall nmaster delta ratio []
@@ -293,7 +296,12 @@ defaultLayout = avoidStruts (tiled ||| tiled3 ||| mir ||| maxim) ||| noBorders  
  
     -- Percent of screen to increment by when resizing panes
     delta   = 3/100
-    
+
+    leftside = withIM (1/10) leftmatch
+    leftmatch = (Title "Speedbar 1.0")
+
+    rightside = withIM (1/10) rightmatch
+    rightmatch = Or (Resource "xclock") $ Or (Role "buddy_list") $ (Title "blablabla")
 
 gimpLayout     = avoidStruts
                     (withIM (1/10) (Role "gimp-toolbox")
@@ -360,7 +368,7 @@ myManageHook = composeAll . concat $
 --    doTransparent t = doX (\w -> spawn $ unwords ["transset-df", "-i", show w, show t])
     doTransparent t = (ask >>= \w -> liftX (setOpacity w t) >> idHook)
     myCFloats = ["MPlayer", "Nvidia-settings", "XCalc", "XFontSel", "Xmessage"]
-    myTFloats = ["Downloads", "Firefox Preferences", "Save As...", "Buddy List"]
+    myTFloats = ["Downloads", "Firefox Preferences", "Save As..."] --"Buddy List"
     myRFloats = ["kcalc"]
     myIgnores = ["desktop_window", "kdesktop", "cairo-dock"]
     myRlNoFloats = ["gimp-image-window", "gimp-dock", "gimp-toolbox"]
