@@ -5,14 +5,27 @@ vbell off
 #bell_msg "bell: %n (%t) [%w:%s]^G"
 
 #rebinds keys to hide screen 0 and go up to 10
-#bind c screen 1
-#bind ^c screen 1
-#bind 0 select 10
-#screen 1
+bind c screen 1
+bind ^c screen 1
+bind 0 select 10
+screen 1
+
+# Alt+num to select terminal
+bindkey "\033\060" select 10
+bindkey "\033\061" select 1
+bindkey "\033\062" select 2
+bindkey "\033\063" select 3
+bindkey "\033\064" select 4
+bindkey "\033\065" select 5
+bindkey "\033\066" select 6
+bindkey "\033\067" select 7
+bindkey "\033\068" select 8
+bindkey "\033\069" select 9
+
 
 #hardstatus string "[screen %n%?: %t%?] %h"
 #hardstatus alwayslastline "[screen %n%?: %t%?] %h"
 #hardstatus alwayslastline "%{= kw}[screen %n%?: %{= kb}%t%?] %{= kg}%h"
 
-hardstatus alwayslastline "%{= kC}%-w%{+b Kc}%n %t%{-}%+w %=%h"
+hardstatus alwayslastline "%{= kC}%-w%{+b dW}%n %t%{-}%+w %=%h"
 shelltitle '$ |bash'
