@@ -61,15 +61,16 @@ _screen_codes_pc()
         MYPWD="${MYPWD##*/}"
         [ ${#MYPWD} -gt 12 ] && MYPWD=..${MYPWD:${#MYPWD}-10}
         echo -n -e "\033k\033\\"
-        echo -n -e "\033k$MYPWD\033\\"
+        echo -n -e "\033k$MYPWD/\033\\"
 
         # Set the windows hard status the 005 code escapes screen so you can set colors within the %h variable
-        USRCOLOR="\005{= kw}"
-        [ $UID -eq 0 ] && USRCOLOR="\005{+b R}"
-        echo -n -e "\e]2;$USRCOLOR$USER\005{-}\005{= kb}|\005{-}$HOSTNAME\a" #\005{= kB}:$PWD
+        JOBS=`jobs|wc -l`
+        [ $JOBS -eq 0 ] && JOBS="" || JOBS="[$JOBS] "
+        [ $UID -eq 0 ] && USRCOLOR="\005{+b R}" || USRCOLOR="\005{= kw}"
+        echo -n -e "\e]2;$JOBS$USRCOLOR$USER\005{-}\005{= kb}|\005{-}$HOSTNAME\a" #\005{= kB}:$PWD
     fi
 }
-PROMPT_COMMAND='_screen_codes_pc'
+export PROMPT_COMMAND='_screen_codes_pc'
 
 #bind '"\t":menu-complete'
 
