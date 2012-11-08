@@ -72,6 +72,10 @@ myWorkspaces    = ["1","2","3","4","5","6","7","8","9", "0", "A", "B", "C", "D",
 myNormalBorderColor  = "#dddddd"
 myFocusedBorderColor = "#00FBFF"
 
+myFont = "xft:Clean:style=bold:size=9:antialias=true"
+
+menuCmd = "dmenu_run -fn '" ++ myFont ++ "' -nb 'black' -nf 'gray' -sb '#63a5b3' -sf 'white'"
+
 gsconfig colorizer = (buildDefaultGSConfig colorizer) { gs_cellheight = 75, gs_cellwidth = 150, gs_font = "xft:Monospace:size=10"}
 
 myGridColorizer = colorRangeFromClassName
@@ -128,7 +132,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
  
     -- launch dmenu
-    , ((modm,               xK_p     ), spawn "dmenu_run 2>&1 >/dev/null")
+    , ((modm,               xK_p     ), spawn (menuCmd ++ " 2>&1 >/dev/null"))
  
     -- launch gmrun
     , ((modm .|. shiftMask, xK_p     ), spawn "gmrun")
@@ -198,12 +202,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_b     ), sendMessage ToggleStruts)
  
     -- Quit xmonad
-    , ((modm .|. shiftMask, xK_q     ), io (exitHook >> exitWith ExitSuccess))
+    , ((modm .|. shiftMask, xK_q     ), spawn "echo 'done' >~/tmp/exitsession" >> io (exitHook >> exitWith ExitSuccess))
 
     -- Restart xmonad
 --    , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
     -- Hack up a restart because my state info is too large for the command line so xmonad's built in restart fails
-    , ((modm              , xK_q     ), spawn "xmonad --recompile && ((sleep 3;xmonad) & killall xmonad-x86_64-linux)")
+    , ((modm              , xK_q     ), spawn "xmonad --recompile && ((sleep 3;xmonad) & killall -u $USER xmonad-x86_64-linux)")
 --    , ((modm              , xK_q     ), spawn "xmonad --recompile;" >> restart "xmonad-x86_64-linux" False)
 
     -- Restart my dzen status bar.
@@ -416,6 +420,9 @@ myEventHook = mempty
 --myLogHook = dynamicLogXinerama
 myLogHook = dynamicLogWithPP defaultPP { ppOutput  = hPutStrLn ?hlogpipe
 --                                         , ppSort  = getSortByXineramaRule
+                                         , ppCurrent  = dzenColor "cyan" "black"
+                                         , ppVisible  = dzenColor "#63a5b3" "black"
+                                         , ppUrgent   = dzenColor "black" "cyan"
                                          , ppSort  = getSortByIndex
                                          , ppTitle = (\str -> "")}
                                >> updatePointer (Relative 0.5 0.5)
@@ -446,12 +453,15 @@ exitHook = do
     return ()
 
 
-    
-myUrgeConfig = urgencyConfig {
-  suppressWhen = OnScreen,
-  remindWhen = Every 300
-}
 
+
+myUrgencyHook = withUrgencyHookC uH uC
+  where
+    uH = dzenUrgencyHook { args = ["-bg", "cyan", "-fg", "black", "-xs", "1", "-fn", myFont] }
+    uC = urgencyConfig {
+                         suppressWhen = Focused,
+                         remindWhen = Every 10
+                       }
 
 --data LibNotifyUrgencyHook = LibNotifyUrgencyHook deriving (Read, Show)
 
@@ -470,7 +480,7 @@ myUrgeConfig = urgencyConfig {
 --
 main = do
   hlogpipe <- spawnPipe "cat >~/.xmonad/dynlogpipe"; let ?hlogpipe = hlogpipe
-  xmonad $ ewmh $ withUrgencyHookC dzenUrgencyHook { args = ["-bg", "cyan", "-fg", "black", "-xs", "1", "-fn", "-*-montecarlo-bold-r-normal-*-11-*-*-*-*-*-*-*"] } urgencyConfig { suppressWhen = Focused, remindWhen = Every 10 } defaults
+  xmonad $ ewmh $ myUrgencyHook defaults
  
 -- A structure containing your configuration settings, overriding
 -- fields in the default config. Any you don't override, will
