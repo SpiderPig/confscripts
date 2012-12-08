@@ -44,5 +44,6 @@
      (flyspell-duplicate           ((t (:underline "orange"))))
      (flyspell-incorrect           ((t (:underline "salmon1"))))
 
+     (bm-face ((t (:background "#04122b" :foreground "white"))))
      )))
 (provide 'color-theme-bluespider)

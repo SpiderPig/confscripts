@@ -99,6 +99,7 @@
 ;; cscope-line-face                              abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
 ;; cscope-line-number-face                       abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
 ;; cscope-mouse-face                             abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    `(bm-face ((,class (:background "#04122b" :foreground "white"))))
 ))
 (provide-theme 'bluespider)
 
