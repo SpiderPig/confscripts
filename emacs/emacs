@@ -133,6 +133,7 @@
 (global-set-key (kbd "C-x C-b") 'buffer-menu)
 
 (global-set-key [f11] 'menu-bar-mode)
+(global-set-key [f12] 'speedbar)
 
 ;; enabel cscope C-c s commands
 (require 'xcscope)
