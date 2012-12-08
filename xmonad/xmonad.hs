@@ -4,6 +4,7 @@ import Data.Monoid
 import Control.Monad
 import System.Exit
 import System.Cmd (system)
+import Data.List
 
 import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare
@@ -35,6 +36,7 @@ import XMonad.Hooks.ManageHelpers
 import Graphics.X11.ExtraTypes.XF86
 import XMonad.Actions.UpdatePointer
 import XMonad.Actions.GridSelect
+import XMonad.Actions.CopyWindow
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
@@ -69,8 +71,8 @@ myWorkspaces    = ["1","2","3","4","5","6","7","8","9", "0", "A", "B", "C", "D",
  
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#dddddd"
-myFocusedBorderColor = "#00FBFF"
+myNormalBorderColor  = "#000000"
+myFocusedBorderColor = "#63a5b3"
 
 myFont = "xft:Clean:style=bold:size=9:antialias=true"
 
@@ -359,18 +361,24 @@ myManageHook = composeAll . concat $
     , [(className =? "Firefox" <&&> (role =? "Preferences" <||> role =? "Manager")) --> doTransparent 0xFF000000]
     , [isDialog --> doTransparent 0xFF000000]
     , [(className =? x <||> title =? x <||> resource =? x) --> doAvoidMaster | x <- myAvoidMasters]
+    , [fmap ("Joint BUS (JBUS)" `isPrefixOf`) title --> doShift "4"]
+    , [fmap ("Joint BUS (JBUS)" `isPrefixOf`) title --> doTransparent 0xFF000000]
 --    , isFullscreen              --> (doF W.focusDown <+> doFullFloat) -- fix flash fullscreen
 --     , [className =? c --> doF focusDown | c <- noStealFocusWins]
 --    , [resource =? "xclock" --> doTransparent 0.8]
 --    , [resource =? "konsole" --> (ask >>= \w -> liftX (focus w >> windows W.shiftMaster) >> idHook)]
+--    , [(className =? "dzen" <||> title =? "dzen" <||> resource =? "dzen") --> doTransparent 0xb2000000]
+    , [(className =? x <||> title =? x <||> resource =? x) --> doCopyAll | x <- myCopyAlls]
     , [manageDocks]
     ]
     where
     role       = stringProperty "WM_WINDOW_ROLE"
     doShiftAndGo = doF . liftM2 (.) W.greedyView W.shift
     doAvoidMaster = doF avoidMaster
---    doTransparent t = doX (\w -> spawn $ unwords ["transset-df", "-i", show w, show t])
+--    doTransparent t = doX (\w -> spawn $ unwords ["transset", "-i", show w, show t])
     doTransparent t = (ask >>= \w -> liftX (setOpacity w t) >> idHook)
+--    doCopy1 = (ask >>= doF . \w -> (copyWindow w "1"))
+    doCopyAll = doF copyToAll
     myCFloats = ["MPlayer", "Nvidia-settings", "XCalc", "XFontSel", "Xmessage"]
     myTFloats = ["Downloads", "Firefox Preferences", "Save As..."] --"Buddy List"
     myRFloats = ["kcalc"]
@@ -386,8 +394,9 @@ myManageHook = composeAll . concat $
     my8Shifts = []
     my9Shifts = ["VirtualBox", "Wine"]
     myAvoidMasters = ["konsole", "xchat", "urxvt", "screen", "Speedbar 1.0", "Ediff"]
-    myTrans = ["xclock", "Firefox", "Kate", "Okular", "Google-chrome"]
-    myOpaque = ["kcalc", "vlc", "mplayer", "Plugin-container", "urxvt", "screen", "konsole", "VirtualBox", "Xmessage", "gimp", "JSAF", "Tci", "xv", "Gwenview", "Vncviewer"]
+    myCopyAlls = ["gcompris", "xclock"]
+--    myTrans = ["xclock", "Firefox", "Kate", "Okular", "Google-chrome"]
+    myOpaque = ["kcalc", "vlc", "mplayer", "Plugin-container", "Urxvt", "screen", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Gwenview", "Vncviewer"]
 
 clock = monitor {
   -- Cairo-clock creates 2 windows with the same classname, thus also using title
@@ -411,8 +420,8 @@ clock = monitor {
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myEventHook = mempty
--- docksEventHook
+-- myEventHook = mempty
+myEventHook = docksEventHook
 
 ------------------------------------------------------------------------
 -- Status bars and logging
@@ -494,8 +503,6 @@ defaults = defaultConfig {
         focusFollowsMouse  = myFocusFollowsMouse,
         borderWidth        = myBorderWidth,
         modMask            = myModMask,
-        -- numlockMask deprecated in 0.9.1
-        -- numlockMask        = myNumlockMask,
         workspaces         = myWorkspaces,
         normalBorderColor  = myNormalBorderColor,
         focusedBorderColor = myFocusedBorderColor,
@@ -506,7 +513,8 @@ defaults = defaultConfig {
  
       -- hooks, layouts
         layoutHook         = myLayout,
-        manageHook         = myManageHook <+> manageMonitor clock,
+        manageHook         = myManageHook,
+--                                       <+> manageMonitor clock,
         handleEventHook    = myEventHook,
         logHook            = myLogHook,
         startupHook        = myStartupHook
