@@ -198,6 +198,16 @@ printAlarm() {
 	echo -n "^fg($COLOR_ICON)^i($ICONPATH/bug.xpm) "
         echo -n "^ca()"
     fi
+
+    # notice icon when a service crashes
+    if [[ -e /bin/rc-status ]]; then
+        rc-status -c >/dev/null 2&>1
+        if [[ $? -eq 0 ]]; then
+#            echo -n "^ca(1, rc-status|xmessage -file -)";
+	    echo -n "^fg($COLOR_ICON)^i($ICONPATH/attention.xpm) "
+#            echo -n "^ca()"
+        fi
+    fi
 }
 
 
@@ -344,12 +354,12 @@ monitorDzen() {
 
 barDzen() {
   if [ $1 -eq 1 ]; then
-    (sleep 0.6;xdotool mousemove 0 0;transset -p .7)&
-    timeout -s HUP 1d dzen2 -xs $1 -x $X_POS -y $Y_POS -h $HEIGHT -fn $FONT -ta 'l' -bg $DZEN_BG -fg $DZEN_FG -p -e ''
+#    (sleep 0.6;xdotool mousemove 0 0;transset -p .7)&
+    timeout -s HUP 1d dzen2 -xs $1 -dock -x $X_POS -y $Y_POS -h $HEIGHT -fn $FONT -ta 'l' -bg $DZEN_BG -fg $DZEN_FG -p -e ''
   else
     let "NXT = $1 - 1"
-    (sleep 0.8;xdotool mousemove 2000 0;transset -p .7)&
-    tee >(timeout -s HUP 1d dzen2 -xs $1 -x $X_POS -y $Y_POS -h $HEIGHT -fn $FONT -ta 'l' -bg $DZEN_BG -fg $DZEN_FG -p -e '') | barDzen $NXT
+#    (sleep 0.8;xdotool mousemove 2000 0;transset -p .7)&
+    tee >(timeout -s HUP 1d dzen2 -xs $1 -dock -x $X_POS -y $Y_POS -h $HEIGHT -fn $FONT -ta 'l' -bg $DZEN_BG -fg $DZEN_FG -p -e '') | barDzen $NXT
   fi
 }
 
