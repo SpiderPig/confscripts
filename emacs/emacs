@@ -12,7 +12,7 @@
  '(comint-scroll-to-bottom-on-input t)
  '(cua-mode t nil (cua-base))
  '(custom-enabled-themes (quote (bluespider)))
- '(custom-safe-themes (quote ("71559d928d2cc772882e58b0fb5334dbab76c4cdd0ec5eddd9c80efc4d5a35fa" default)))
+ '(custom-safe-themes (quote ("c6f8d775cd9fbb4a516e60f35d22d366daeefbbcff760605415bfdfa77ad7be4" "71559d928d2cc772882e58b0fb5334dbab76c4cdd0ec5eddd9c80efc4d5a35fa" default)))
  '(delete-old-versions (quote other))
  '(desktop-files-not-to-save "^$")
  '(desktop-save t)
@@ -115,6 +115,17 @@
 ))
 (add-hook 'text-mode-hook 'maybe-svncommit-set-hook)
 (add-to-list 'auto-mode-alist '("svn-commit\\(\\.[0-9]+\\)?\\.tmp$" . text-mode))
+
+(defun maybe-gitcommit-set-hook ()
+  (when (and buffer-file-name
+             (string-match "COMMIT_EDITMSG" buffer-file-name))
+    (set-fill-column 79)
+    (auto-fill-mode t)
+    (flyspell-mode t)
+    (linum-mode t)
+))
+(add-hook 'text-mode-hook 'maybe-gitcommit-set-hook)
+(add-to-list 'auto-mode-alist '("COMMIT_EDITMSG" . text-mode))
 
 ;; start speedbar if we're using a window system
 ;; (when window-system
