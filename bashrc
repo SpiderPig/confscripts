@@ -59,7 +59,12 @@ _screen_codes_pc()
     if [ $TERM = "screen" ]; then
         MYPWD="${PWD/#$HOME/~}"
         MYPWD="${MYPWD##*/}"
-        [ ${#MYPWD} -gt 12 ] && MYPWD=..${MYPWD:${#MYPWD}-10}
+        # custom trimmings for work etc...
+        MYPWD="${MYPWD/%_branch/~}"
+        MYPWD="${MYPWD/#Navy_Training_Baseline_/~}"
+        MYPWD="${MYPWD/#Navy_/~}"
+
+        [ ${#MYPWD} -gt 12 ] && MYPWD=~${MYPWD:${#MYPWD}-11}
         echo -n -e "\033k\033\\"
         echo -n -e "\033k$MYPWD/\033\\"
 
@@ -67,7 +72,12 @@ _screen_codes_pc()
         JOBS=`jobs|wc -l`
         [ $JOBS -eq 0 ] && JOBS="" || JOBS="[$JOBS] "
         [ $UID -eq 0 ] && USRCOLOR="\005{+b R}" || USRCOLOR="\005{= kw}"
-        echo -n -e "\e]2;$JOBS$USRCOLOR$USER\005{-}\005{= kb}|\005{-}$HOSTNAME\a" #\005{= kB}:$PWD
+        GIT_BR="$(declare -F __git_ps1 &>/dev/null && __git_ps1 "%s")"
+        # trim things (redundant _branch suffix) and chop down to fit
+        GIT_BR="${GIT_BR/%_branch}"
+        [ ${#GIT_BR} -gt 9 ] && GIT_BR="~${GIT_BR:${#GIT_BR}-8}"
+        [ ${#GIT_BR} -gt 0 ] && GIT_BR="($GIT_BR) "
+        echo -n -e "\e]2;$GIT_BR$JOBS$USRCOLOR$USER\005{-}\005{= kb}|\005{-}$HOSTNAME\a" #\005{= kB}:$PWD
     fi
 }
 export PROMPT_COMMAND='_screen_codes_pc'
