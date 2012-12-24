@@ -5,6 +5,13 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
+if [[ $TERM != "screen" ]];then
+    test -z "$TMUX" && (tmux attach || tmux new-session)
+    #screen -RR
+    exit
+fi
+
+
 # User specific aliases and functions
 export HISTCONTROL=ignoreboth
 
@@ -77,10 +84,29 @@ _screen_codes_pc()
         GIT_BR="${GIT_BR/%_branch}"
         [ ${#GIT_BR} -gt 9 ] && GIT_BR="~${GIT_BR:${#GIT_BR}-8}"
         [ ${#GIT_BR} -gt 0 ] && GIT_BR="($GIT_BR) "
-        echo -n -e "\e]2;$GIT_BR$JOBS$USRCOLOR$USER\005{-}\005{= kb}|\005{-}$HOSTNAME\a" #\005{= kB}:$PWD
+        if [[ -z "$TMUX" ]]; then
+            echo -n -e "\e]2;$GIT_BR$JOBS$USRCOLOR$USER\005{-}\005{= kb}|\005{-}$HOSTNAME\a" #\005{= kB}:$PWD
+        else 
+            echo -n -e "\e]2;$GIT_BR$JOBS\a"
+        fi
     fi
 }
-export PROMPT_COMMAND='_screen_codes_pc'
+
+preexec_interactive_mode=""
+_preexec_trap()
+{
+    if [[ -z "$preexec_interactive_mode" ]]; then
+        return
+    else
+        echo -n -e "\033k$BASH_COMMAND\033\\"
+        preexec_interactive_mode=""
+    fi
+}
+
+if [ $TERM = "screen" ]; then
+    export PROMPT_COMMAND='_screen_codes_pc;preexec_interactive_mode="yes"'
+    trap '_preexec_trap' DEBUG
+fi
 
 #bind '"\t":menu-complete'
 
