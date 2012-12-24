@@ -6,8 +6,11 @@ if [ -f /etc/bashrc ]; then
 fi
 
 if [[ $TERM != "screen" ]];then
-    test -z "$TMUX" && (tmux attach || tmux new-session)
-    #screen -RR
+    if which tmux 2>&1 >/dev/null; then
+        (tmux ls | grep -vq attached && tmux at) || tmux new-session
+    else
+        screen -RR
+    fi
     exit
 fi
 
