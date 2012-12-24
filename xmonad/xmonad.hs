@@ -49,7 +49,7 @@ import Text.Printf
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal      = "urxvt -e /usr/bin/screen -RR -m" -- "konsole"
+myTerminal      = "urxvt"
  
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
@@ -351,9 +351,9 @@ myManageHook = composeAll . concat $
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift "4" | x <- my4Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift "5" | x <- my5Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift "6" | x <- my6Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo "7" | x <- my7Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo "8" | x <- my8Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShiftAndGo "9" | x <- my9Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "7" | x <- my7Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "8" | x <- my8Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "9" | x <- my9Shifts]
 --    , [(className =? "Firefox" <&&> resource =? "Dialog") --> doFloat]
 --    , [(className =? x <||> title =? x <||> resource =? x) --> doTransparent 0xaa000000 | x <- myTrans]
     , [doTransparent 0xb2000000]
@@ -396,7 +396,7 @@ myManageHook = composeAll . concat $
     myAvoidMasters = ["konsole", "xchat", "urxvt", "screen", "Speedbar 1.0", "Ediff"]
     myCopyAlls = ["gcompris", "xclock"]
 --    myTrans = ["xclock", "Firefox", "Kate", "Okular", "Google-chrome"]
-    myOpaque = ["kcalc", "vlc", "mplayer", "Plugin-container", "Urxvt", "screen", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Gwenview", "Vncviewer"]
+    myOpaque = ["kcalc", "vlc", "mplayer", "Plugin-container", "URxvt", "screen", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Gwenview", "Vncviewer"]
 
 clock = monitor {
   -- Cairo-clock creates 2 windows with the same classname, thus also using title
