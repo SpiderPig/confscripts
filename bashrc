@@ -5,13 +5,13 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
-if [[ $TERM != "screen" ]];then
+if [[ $TERM != "screen" && -z $TMUX && -n $DISPLAY ]];then
     if which tmux 2>&1 >/dev/null; then
         (tmux ls | grep -vq attached && tmux at) || tmux new-session
+        exit
     else
-        screen -RR
+        screen -RR && exit
     fi
-    exit
 fi
 
 
@@ -27,10 +27,6 @@ alias ll='ls -l --color=auto'
 
 alias svndf='colorsvn diff --diff-cmd kdiff3'
 alias svnvdf='svn diff --diff-cmd vimdiff'
-
-# hack to append to the history after every command instead of when the shell exits
-#export PROMPT_COMMAND="history -a"
-
 
 # Plain prompt
 #export PS1='\u@\h:\w\$ '
@@ -62,6 +58,25 @@ TEAL="\[\033[0;36m\]"
 
 export PS1="${BGREEN}\u@\h${BBLUE} \w \$${NOCOLOR} ${SETTITLE}${SETHSTAT}"
 
+delare -F __git_ps1 &>/dev/null
+if [[ $? -gt 0 ]]; then
+    if [ -f /usr/share/doc/git-1.8.0.1/contrib/completion/git-prompt.sh ]; then
+        source /usr/share/doc/git-1.8.0.1/contrib/completion/git-prompt.sh
+    else
+        __git_ps1 () 
+        { 
+            local b="$(git symbolic-ref HEAD 2>/dev/null)";
+            if [ -n "$b" ]; then
+                if [ -n $1 ];then
+                    printf $1 "${b##refs/heads/}";
+                else
+                    printf " (%s)" "${b##refs/heads/}";
+                fi
+            fi
+        }
+    fi
+fi
+
 # code for setting screens title based on PWD
 # will display either the title based on current command or the pwd when at the prompt
 _screen_codes_pc()
@@ -75,7 +90,7 @@ _screen_codes_pc()
         MYPWD="${MYPWD/#Navy_/~}"
 
         [ ${#MYPWD} -gt 12 ] && MYPWD=~${MYPWD:${#MYPWD}-11}
-        echo -n -e "\033k\033\\"
+#        echo -n -e "\033k\033\\"
         echo -n -e "\033k$MYPWD/\033\\"
 
         # Set the windows hard status the 005 code escapes screen so you can set colors within the %h variable
@@ -87,6 +102,7 @@ _screen_codes_pc()
         GIT_BR="${GIT_BR/%_branch}"
         [ ${#GIT_BR} -gt 9 ] && GIT_BR="~${GIT_BR:${#GIT_BR}-8}"
         [ ${#GIT_BR} -gt 0 ] && GIT_BR="($GIT_BR) "
+ 
         if [[ -z "$TMUX" ]]; then
             echo -n -e "\e]2;$GIT_BR$JOBS$USRCOLOR$USER\005{-}\005{= kb}|\005{-}$HOSTNAME\a" #\005{= kB}:$PWD
         else 
@@ -95,6 +111,7 @@ _screen_codes_pc()
     fi
 }
 
+#implement a psudo preexec (ala zsh)
 preexec_interactive_mode=""
 _preexec_trap()
 {
@@ -110,6 +127,9 @@ if [ $TERM = "screen" ]; then
     export PROMPT_COMMAND='_screen_codes_pc;preexec_interactive_mode="yes"'
     trap '_preexec_trap' DEBUG
 fi
+
+# hack to append to the history after every command instead of when the shell exits
+#export PROMPT_COMMAND="history -a"
 
 #bind '"\t":menu-complete'
 
