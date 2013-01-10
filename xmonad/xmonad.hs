@@ -37,6 +37,8 @@ import Graphics.X11.ExtraTypes.XF86
 import XMonad.Actions.UpdatePointer
 import XMonad.Actions.GridSelect
 import XMonad.Actions.CopyWindow
+import XMonad.Actions.Navigation2D
+import qualified XMonad.Actions.ConstrainedResize as Sqr
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
@@ -217,9 +219,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_r     ), spawn "killall conky; killall dzconky.sh; killall dzen2; xmonad --recompile; ~/.xmonad/dzconky.sh")
 
     -- screen lock and suspends
-    , ((modm .|. shiftMask, xK_l ), spawn "xscreensaver-command -lock || xlock")
-    , ((mod1Mask .|. controlMask, xK_l ), spawn "xscreensaver-command -lock || xlock")
-    , ((modm .|. shiftMask, xK_s ), spawn "xscreensaver-command -lock; sudo /usr/sbin/pm-suspend")
+    , ((modm .|. shiftMask, xK_l ), spawn "xscreensaver-command -lock || xautolock -locknow")
+    , ((mod1Mask .|. controlMask, xK_l ), spawn "xscreensaver-command -lock || xautolock -locknow")
+    , ((modm .|. shiftMask, xK_s ), spawn "(xscreensaver-command -lock || xautolock -locknow); sudo /usr/sbin/pm-suspend")
     , ((modm              , xK_c     ), spawn "kcalc")
     -- Volume Up
     , ((0, xF86XK_AudioRaiseVolume      ), spawn "amixer sset Master 1%+;amixer sset 'Master Front' 1%+")
@@ -233,6 +235,24 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- grid select menus
     , ((modm .|. shiftMask, xK_Tab              ), goToSelected myGSConfig)
     , ((modm, xK_grave                          ), spawnSelected myGSSpawnConfig myGridSpawnList)
+
+    -- Directional navigation of windows
+    , ((modm,                 xK_Right), windowGo R False)
+    , ((modm,                 xK_Left ), windowGo L False)
+    , ((modm,                 xK_Up   ), windowGo U False)
+    , ((modm,                 xK_Down ), windowGo D False)
+
+    -- Swap adjacent windows
+    , ((modm .|. shiftMask, xK_Right), windowSwap R False)
+    , ((modm .|. shiftMask, xK_Left ), windowSwap L False)
+    , ((modm .|. shiftMask, xK_Up   ), windowSwap U False)
+    , ((modm .|. shiftMask, xK_Down ), windowSwap D False)
+
+ -- Send window to adjacent screen
+    , ((modm .|. controlMask,    xK_Right    ), windowToScreen R False)
+    , ((modm .|. controlMask,    xK_Left     ), windowToScreen L False)
+    , ((modm .|. controlMask,    xK_Up       ), windowToScreen U False)
+    , ((modm .|. controlMask,    xK_Down     ), windowToScreen D False)
     ]
     ++
  
@@ -270,6 +290,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-button3, Set the window to floating mode and resize by dragging
     , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
                                        >> windows W.shiftMaster))
+    , ((modm .|. shiftMask, button3), (\w -> focus w >> Sqr.mouseResizeWindow w True ))
  
     , ((modm, button4), (\w -> focus w >> sendMessage Expand))
     , ((modm, button5), (\w -> focus w >> sendMessage Shrink))
@@ -340,9 +361,9 @@ avoidMaster = W.modify' $ \c -> case c of
  
 myManageHook = composeAll . concat $
 --    [ [isDialog --> doFloat]
-    [ [className =? c --> doFloat | c <- myCFloats]
-    , [title =? t --> doFloat | t <- myTFloats]
-    , [resource =? r --> doFloat | r <- myRFloats]
+    [ [className =? c --> doCenterFloat | c <- myCFloats]
+    , [title =? t --> doCenterFloat | t <- myTFloats]
+    , [resource =? r --> doCenterFloat | r <- myRFloats]
     , [resource =? i --> doIgnore | i <- myIgnores]
     , [role       =? x --> ask >>= doF . W.sink | x <- myRlNoFloats]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift "1" | x <- my1Shifts]
@@ -396,7 +417,7 @@ myManageHook = composeAll . concat $
     myAvoidMasters = ["konsole", "xchat", "urxvt", "screen", "Speedbar 1.0", "Ediff"]
     myCopyAlls = ["gcompris", "xclock"]
 --    myTrans = ["xclock", "Firefox", "Kate", "Okular", "Google-chrome"]
-    myOpaque = ["kcalc", "vlc", "mplayer", "Plugin-container", "URxvt", "screen", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Gwenview", "Vncviewer"]
+    myOpaque = ["Audacious", "kcalc", "vlc", "mplayer", "Plugin-container", "URxvt", "screen", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Gwenview", "Vncviewer"]
 
 clock = monitor {
   -- Cairo-clock creates 2 windows with the same classname, thus also using title
@@ -489,7 +510,7 @@ myUrgencyHook = withUrgencyHookC uH uC
 --
 main = do
   hlogpipe <- spawnPipe "cat >~/.xmonad/dynlogpipe"; let ?hlogpipe = hlogpipe
-  xmonad $ ewmh $ myUrgencyHook defaults
+  xmonad $ ewmh $ myUrgencyHook $ withNavigation2DConfig defaultNavigation2DConfig {defaultTiledNavigation = centerNavigation } $ defaults
  
 -- A structure containing your configuration settings, overriding
 -- fields in the default config. Any you don't override, will
