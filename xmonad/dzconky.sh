@@ -201,7 +201,7 @@ printAlarm() {
 
     # notice icon when a service crashes
     if [[ -e /bin/rc-status ]]; then
-        rc-status -c >/dev/null 2&>1
+        rc-status -c >/dev/null 2>&1
         if [[ $? -eq 0 ]]; then
 #            echo -n "^ca(1, rc-status|xmessage -file -)";
 	    echo -n "^fg($COLOR_ICON)^i($ICONPATH/attention.xpm) "
