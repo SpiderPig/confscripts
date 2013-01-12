@@ -38,7 +38,6 @@ import XMonad.Actions.UpdatePointer
 import XMonad.Actions.GridSelect
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.Navigation2D
-import qualified XMonad.Actions.ConstrainedResize as Sqr
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
@@ -126,7 +125,7 @@ myGridSpawnColorizer s active =
 
 myGSSpawnConfig = gsconfig myGridSpawnColorizer
 
-myGridSpawnList = ["audacious", "alienarena",  "emacs", "firefox",  "gimp", "gwenview", "k3b", "kate", "kcalc", "oocalc", "oowriter", "vlc", "VirtualBox", "urxvt -e /usr/bin/screen -RR -m"]
+myGridSpawnList = ["audacious", "alienarena", "dolphin",  "emacs", "firefox",  "gimp", "gwenview", "k3b", "kate", "kcalc", "oocalc", "oowriter", "vlc", "VirtualBox", "urxvt -e /usr/bin/screen -RR -m"]
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
 --
@@ -253,6 +252,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. controlMask,    xK_Left     ), windowToScreen L False)
     , ((modm .|. controlMask,    xK_Up       ), windowToScreen U False)
     , ((modm .|. controlMask,    xK_Down     ), windowToScreen D False)
+
+-- Swap workspaces on adjacent screens
+    , ((modm .|. mod1Mask, xK_Right    ), screenSwap R False)
+    , ((modm .|. mod1Mask, xK_Left    ), screenSwap L False)
+    , ((modm .|. mod1Mask, xK_Up    ), screenSwap U False)
+    , ((modm .|. mod1Mask, xK_Down    ), screenSwap D False)
+
     ]
     ++
  
@@ -290,7 +296,6 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-button3, Set the window to floating mode and resize by dragging
     , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
                                        >> windows W.shiftMaster))
-    , ((modm .|. shiftMask, button3), (\w -> focus w >> Sqr.mouseResizeWindow w True ))
  
     , ((modm, button4), (\w -> focus w >> sendMessage Expand))
     , ((modm, button5), (\w -> focus w >> sendMessage Shrink))
