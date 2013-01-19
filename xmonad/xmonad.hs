@@ -50,7 +50,7 @@ import Text.Printf
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal      = "urxvt"
+myTerminal      = "BASHMUXTERM='yes' urxvt"
  
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
@@ -125,7 +125,7 @@ myGridSpawnColorizer s active =
 
 myGSSpawnConfig = gsconfig myGridSpawnColorizer
 
-myGridSpawnList = ["audacious", "alienarena", "dolphin",  "emacs", "firefox",  "gimp", "gwenview", "k3b", "kate", "kcalc", "oocalc", "oowriter", "vlc", "VirtualBox", "urxvt -e /usr/bin/screen -RR -m"]
+myGridSpawnList = ["audacious", "alienarena", "dolphin",  "emacs", "firefox",  "gimp", "gwenview", "k3b", "kate", "kcalc", "okular", "oocalc", "oowriter", "vlc", "VirtualBox", "urxvt"]
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
 --
@@ -371,6 +371,7 @@ myManageHook = composeAll . concat $
     , [resource =? r --> doCenterFloat | r <- myRFloats]
     , [resource =? i --> doIgnore | i <- myIgnores]
     , [role       =? x --> ask >>= doF . W.sink | x <- myRlNoFloats]
+    , [(className =? x <||> title =? x <||> resource =? x) --> ask >>= doF . W.sink | x <- myNoFloats]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift "1" | x <- my1Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift "2" | x <- my2Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) --> doShift "3" | x <- my3Shifts]
@@ -410,6 +411,7 @@ myManageHook = composeAll . concat $
     myRFloats = ["kcalc"]
     myIgnores = ["desktop_window", "kdesktop", "cairo-dock"]
     myRlNoFloats = ["gimp-image-window", "gimp-dock", "gimp-toolbox"]
+    myNoFloats = ["dreamchess", "pouetChess"]
     my1Shifts = []
     my2Shifts = []
     my3Shifts = []
