@@ -5,18 +5,20 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
-if [[ $TERM != "screen" && -z $TMUX && -n $DISPLAY ]];then
+if [[ $TERM != "screen" && -z $TMUX && -n $BASHMUXTERM ]];then
     if which tmux 2>&1 >/dev/null; then
-        (tmux ls | grep -vq attached && tmux at) || tmux new-session
-        exit
+	(tmux ls | grep -vq attached && tmux at) || tmux new-session
+	exit
     else
-        screen -RR && exit
+	screen -RR && exit
     fi
 fi
 
 
 # User specific aliases and functions
 export HISTCONTROL=ignoreboth
+
+export EDITOR=emacsclient
 
 alias dropcache='su -c "echo 3 >/proc/sys/vm/drop_caches"'
 alias histback=" history -d $((HISTCMD-1))"
@@ -111,20 +113,56 @@ _screen_codes_pc()
     fi
 }
 
-#implement a psudo preexec (ala zsh)
+#implement a psudo preexec (a la zsh)
 preexec_interactive_mode=""
+preexec_starttime=""
+preexec_startcmd=""
+
 _preexec_trap()
 {
-    if [[ -z "$preexec_interactive_mode" ]]; then
+    if [[ -z "$preexec_interactive_mode" || $BASH_COMMAND == "_precmd" ]]; then
         return
     else
+        local full_command=`history 1 | sed -e "s/^[ ]*[0-9]*[ ]*//g"`;
+
         echo -n -e "\033k$BASH_COMMAND\033\\"
         preexec_interactive_mode=""
+        preexec_starttime="$(date +%s)"
+        preexec_startcmd="$full_command"
     fi
 }
 
+_precmd()
+{
+    #notify me when long runing commands finaly finish
+    if [[ -n "$preexec_starttime" ]]; then
+        local curtime="$(date +%s)"
+        local deltat=$((curtime-preexec_starttime))
+        local last_pipe_cmd=`echo $preexec_startcmd |sed 's/.*|//'`
+
+        if [[ $deltat -gt 600 ]]; then
+            case $last_pipe_cmd in
+                gdb) ;;
+                man) ;;
+                nano) ;;
+                ssh) ;;
+                su) ;;
+                less) ;;
+                *)  echo -ne "\a"
+                    notify-send -i utilities-terminal -u low "Command finished" "$preexec_startcmd ($last_pipe_cmd )in $deltat seconds."
+                    ;;
+            esac
+        fi
+#        echo "$preexec_startcmd / $last_pipe_cmd finished in $deltat"
+        preexec_starttime=""
+    fi
+
+    _screen_codes_pc
+    preexec_interactive_mode="yes"
+}
+
 if [ $TERM = "screen" ]; then
-    export PROMPT_COMMAND='_screen_codes_pc;preexec_interactive_mode="yes"'
+    export PROMPT_COMMAND='_precmd'
     trap '_preexec_trap' DEBUG
 fi
 
