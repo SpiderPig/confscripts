@@ -56,7 +56,6 @@ TopProc=""
 MAILTICK=0;
 HAVEMAIL="false"
 
-
 printVolInfo() {
 	Perc=$(amixer get Master|perl -pe 's/.*: Playback \d+ \[(\d+)%\].*/\1/; if ($_ > $g){$g = $_;} $_=$g;'|tail -1)
 	Mute=$(amixer get Master|perl -pe 's/.* \[(o[nf]f?)\]/\1/'|tail -1)
@@ -210,6 +209,29 @@ printAlarm() {
     fi
 }
 
+printNetwork() {
+    if [[ -e /sbin/iwconfig ]]; then
+        ifconfig wlan0 >/dev/null 2>&1
+        if [[ $? -eq 0 ]]; then
+            read  Niface Nessid Nap Nlink < <(iwconfig wlan0|tr -d '\n'|perl -pe 's/(\S*).*ESSID:"(\S*)".*Access Point: (\S*).*Link Quality=(\d+\/\d+).*/\1|\2|\3|\4\n/')
+            IFS="/" lnk=( $Nlink )
+            Nlink=$((${lnk[0]} * 100 / ${lnk[1]}))
+
+            echo -n "^ca(1, wifi-radar)";
+#	    echo -n "^fg($COLOR_ICON)^i($ICONPATH/net-wifi.xbm) "
+            if [[ -n $Niface ]]; then
+                echo -n "^fg($DZEN_FG2)$Nessid "
+		echo -n "$(echo $Nlink | gdbar -fg $BAR_FG -bg $BAR_BG    -h 12 -w 10 -s v -sh 2 -ss 1 -sw 10 -nonl)"
+            else
+#                echo -n "^fg($DZEN_FG2)wifi "
+                echo -n "^fg($DZEN_FG2)$Niface "
+ 		echo -n "$(echo $Nlink | gdbar -fg \#404040 -bg \#202020  -h 12 -w 10 -s v -sh 2 -ss 1 -sw 10 -nonl)"
+            fi
+            echo -n "^ca()"
+	    printSpace
+        fi
+    fi
+}
 
 printHostInfo() {
     echo -n " ^fg()$(hostname)^fg(#007b8c)/^fg(#5f656b)$(uname -m) ^fg(#a488d9)| ^fg()$Uptime"
@@ -252,6 +274,7 @@ printBar1() {
 		printSpace
 		printVolInfo
 		printSpace
+                printNetwork
                 printAlarm
 #		echo -n $TopProc
 		echo
