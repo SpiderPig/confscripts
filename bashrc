@@ -19,6 +19,7 @@ fi
 export HISTCONTROL=ignoreboth
 
 export EDITOR=emacsclient
+export SDL_VIDEO_ALLOW_SCREENSAVER=1
 
 alias dropcache='su -c "echo 3 >/proc/sys/vm/drop_caches"'
 alias histback=" history -d $((HISTCMD-1))"
@@ -139,9 +140,10 @@ _precmd()
         local curtime="$(date +%s)"
         local deltat=$((curtime-preexec_starttime))
         local last_pipe_cmd=`echo $preexec_startcmd |sed 's/.*|//'`
+        local last_pipe_prog="${last_pipe_cmd%% *}"
 
         if [[ $deltat -gt 600 ]]; then
-            case $last_pipe_cmd in
+            case $last_pipe_prog in
                 gdb) ;;
                 man) ;;
                 nano) ;;
