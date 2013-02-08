@@ -9,6 +9,7 @@ import Data.List
 import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare
 import XMonad.Util.SpawnOnce
+import XMonad.Util.Scratchpad
 
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.NoBorders
@@ -51,11 +52,12 @@ import Text.Printf
 -- certain contrib modules.
 --
 myTerminal      = "BASHMUXTERM='yes' urxvt"
+myScratchTerm   = "BASHMUXTERM='yes' urxvt -name scratchpad  -xrm 'URxvt.background: [90]#000000'"
  
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
 
-myBorderWidth   = 0
+myBorderWidth   = 1
  
 myModMask       = mod4Mask
  
@@ -134,11 +136,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch a terminal
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
  
+    -- quake style terminal
+    , ((modm, xK_grave ), scratchpadSpawnActionCustom myScratchTerm)
+
     -- launch dmenu
     , ((modm,               xK_p     ), spawn (menuCmd ++ " 2>&1 >/dev/null"))
- 
-    -- launch gmrun
-    , ((modm .|. shiftMask, xK_p     ), spawn "gmrun")
  
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
@@ -151,8 +153,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
     
     , ((modm,               xK_a ), sendMessage $ JumpToLayout "Tall")
-    , ((modm,               xK_s ), sendMessage $ JumpToLayout "3 Tall")
-    , ((modm,               xK_d ), sendMessage $ JumpToLayout "Wide")
+    , ((modm .|. shiftMask, xK_a ), sendMessage $ JumpToLayout "3 Tall")
+    , ((modm,               xK_s ), sendMessage $ JumpToLayout "Wide")
     , ((modm,               xK_f ), sendMessage $ JumpToLayout "Full")
     , ((modm .|. shiftMask, xK_f ), sendMessage $ JumpToLayout "Max")
  
@@ -233,7 +235,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_o                ), spawn "transset -p .7")
     -- grid select menus
     , ((modm .|. shiftMask, xK_Tab              ), goToSelected myGSConfig)
-    , ((modm, xK_grave                          ), spawnSelected myGSSpawnConfig myGridSpawnList)
+    , ((modm .|. shiftMask, xK_p                ), spawnSelected myGSSpawnConfig myGridSpawnList)
+
+    -- win8 sequences sent by touch device Logitech T650
+    , ((mod4Mask .|. controlMask, xK_BackSpace           ), screenSwap R True)           -- one finger swipe from left edge
+    , ((mod4Mask .|. mod1Mask, 0x1008ffb1                ), spawn "xmessage boo")        -- one finger swipe from right edge
+    , ((mod4Mask .|. controlMask, 0x1008ffb1             ), scratchpadSpawnActionCustom myScratchTerm)  -- one finger swipe from top edge
+--    , ((0, 0xffeb                                        ), spawn "xmessage '3 up'")     -- three finger swipe up (sends super_r same as mod4)
+    , ((mod4Mask, xK_d                                   ), windowSwap D False)          -- three finger swipe down
 
     -- Directional navigation of windows
     , ((modm,                 xK_Right), windowGo R False)
@@ -284,6 +293,18 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 ------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events
 --
+button6               :: Button
+button6               =  6
+button7               :: Button
+button7               =  7
+button8               :: Button
+button8               =  8
+button9               :: Button
+button9               =  9
+button10              :: Button
+button10              =  10
+
+
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
  
     -- mod-button1, Set the window to floating mode and move by dragging
@@ -296,11 +317,20 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-button3, Set the window to floating mode and resize by dragging
     , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
                                        >> windows W.shiftMaster))
+    , ((modm .|. shiftMask, button1), (\w -> focus w >> mouseResizeWindow w
+                                       >> windows W.shiftMaster))
  
-    , ((modm, button4), (\w -> focus w >> sendMessage Expand))
-    , ((modm, button5), (\w -> focus w >> sendMessage Shrink))
-    , ((modm .|. shiftMask, button4), (\w -> focus w >> sendMessage MirrorExpand))
-    , ((modm .|. shiftMask, button5), (\w -> focus w >> sendMessage MirrorShrink))
+    , ((modm, button4), (\w -> focus w >> sendMessage MirrorExpand))
+    , ((modm, button5), (\w -> focus w >> sendMessage MirrorShrink))
+    , ((modm, button7), (\w -> focus w >> sendMessage Expand))
+    , ((modm, button6), (\w -> focus w >> sendMessage Shrink))
+    , ((modm .|. shiftMask, button4), (\w -> focus w >> sendMessage Expand))
+    , ((modm .|. shiftMask, button5), (\w -> focus w >> sendMessage Shrink))
+
+--    , ((0, button8), (\w -> focus w >> windows W.swapUp))
+--    , ((0, button9), (\w -> focus w >> windows W.swapDown))
+    , ((0, button8), (\w -> focus w >> windowSwap L False))
+    , ((0, button9), (\w -> focus w >> windowSwap R False))
     ]
  
 ------------------------------------------------------------------------
@@ -396,6 +426,8 @@ myManageHook = composeAll . concat $
 --    , [resource =? "konsole" --> (ask >>= \w -> liftX (focus w >> windows W.shiftMaster) >> idHook)]
 --    , [(className =? "dzen" <||> title =? "dzen" <||> resource =? "dzen") --> doTransparent 0xb2000000]
     , [(className =? x <||> title =? x <||> resource =? x) --> doCopyAll | x <- myCopyAlls]
+    , [scratchpadManageHook $ W.RationalRect 0 (16/1200) 1 0.42]
+    , [resource =? "scratchpad" --> doTransparent 0xFF000000]
     , [manageDocks]
     ]
     where
@@ -460,7 +492,7 @@ myLogHook = dynamicLogWithPP defaultPP { ppOutput  = hPutStrLn ?hlogpipe
                                          , ppCurrent  = dzenColor "cyan" "black"
                                          , ppVisible  = dzenColor "#63a5b3" "black"
                                          , ppUrgent   = dzenColor "black" "cyan"
-                                         , ppSort  = getSortByIndex
+                                         , ppSort  = fmap (.scratchpadFilterOutWorkspace) getSortByIndex
                                          , ppTitle = (\str -> "")}
                                >> updatePointer (Relative 0.5 0.5)
 -- myLogHook = dynamicLog >> execScriptHook "logscript"
