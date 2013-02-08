@@ -214,8 +214,13 @@ printNetwork() {
         ifconfig wlan0 >/dev/null 2>&1
         if [[ $? -eq 0 ]]; then
             read  Niface Nessid Nap Nlink < <(iwconfig wlan0|tr -d '\n'|perl -pe 's/(\S*).*ESSID:"(\S*)".*Access Point: (\S*).*Link Quality=(\d+\/\d+).*/\1|\2|\3|\4\n/')
-            IFS="/" lnk=( $Nlink )
-            Nlink=$((${lnk[0]} * 100 / ${lnk[1]}))
+
+            if [[ -n $Nlink ]]; then
+                IFS="/" lnk=( $Nlink )
+                Nlink=$((${lnk[0]} * 100 / ${lnk[1]}))
+            else
+                Nlink=0
+            fi
 
             echo -n "^ca(1, wifi-radar)";
 #	    echo -n "^fg($COLOR_ICON)^i($ICONPATH/net-wifi.xbm) "
@@ -377,11 +382,9 @@ monitorDzen() {
 
 barDzen() {
   if [ $1 -eq 1 ]; then
-#    (sleep 0.6;xdotool mousemove 0 0;transset -p .7)&
     timeout -s HUP 1d dzen2 -xs $1 -dock -x $X_POS -y $Y_POS -h $HEIGHT -fn $FONT -ta 'l' -bg $DZEN_BG -fg $DZEN_FG -p -e ''
   else
     let "NXT = $1 - 1"
-#    (sleep 0.8;xdotool mousemove 2000 0;transset -p .7)&
     tee >(timeout -s HUP 1d dzen2 -xs $1 -dock -x $X_POS -y $Y_POS -h $HEIGHT -fn $FONT -ta 'l' -bg $DZEN_BG -fg $DZEN_FG -p -e '') | barDzen $NXT
   fi
 }
