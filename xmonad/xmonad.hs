@@ -35,10 +35,13 @@ import XMonad.Hooks.ManageHelpers
 -- import XMonad.Hooks.InsertPosition
 
 import Graphics.X11.ExtraTypes.XF86
+import XMonad.Actions.CycleWS
+import XMonad.Util.WorkspaceCompare
 import XMonad.Actions.UpdatePointer
 import XMonad.Actions.GridSelect
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.Navigation2D
+import XMonad.Actions.WindowGo
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
@@ -57,7 +60,7 @@ myScratchTerm   = "BASHMUXTERM='yes' urxvt -name scratchpad  -xrm 'URxvt.backgro
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
 
-myBorderWidth   = 1
+myBorderWidth   = 0
  
 myModMask       = mod4Mask
  
@@ -75,11 +78,13 @@ myWorkspaces    = ["1","2","3","4","5","6","7","8","9", "0", "A", "B", "C", "D",
 -- Border colors for unfocused and focused windows, respectively.
 --
 myNormalBorderColor  = "#000000"
-myFocusedBorderColor = "#63a5b3"
+myFocusedBorderColor = "#333333" -- "#63a5b3"
 
 myFont = "xft:Clean:style=bold:size=9:antialias=true"
 
 menuCmd = "dmenu_run -fn '" ++ myFont ++ "' -nb 'black' -nf 'gray' -sb '#63a5b3' -sf 'white'"
+
+lmenuCmd = "mymenu"
 
 gsconfig colorizer = (buildDefaultGSConfig colorizer) { gs_cellheight = 75, gs_cellwidth = 150, gs_font = "xft:Monospace:size=10"}
 
@@ -128,6 +133,14 @@ myGridSpawnColorizer s active =
 myGSSpawnConfig = gsconfig myGridSpawnColorizer
 
 myGridSpawnList = ["audacious", "alienarena", "dolphin",  "emacs", "firefox",  "gimp", "gwenview", "k3b", "kate", "kcalc", "okular", "oocalc", "oowriter", "vlc", "VirtualBox", "urxvt"]
+
+windowZoom :: X ()
+windowZoom = findWorkspace getSortByIndex Next EmptyWS 1
+           >>= \t -> (windows . W.shift $ t) >> (windows . W.view $ t)
+-- windowZoom = do t <- findWorkspace getSortByIndex Next EmptyWS 1
+--            windows . W.shift $ t 
+--            windows . W.view $ t
+-- getSortByIndexNoSP = fmap (.scratchpadFilterOutWorkspace) getSortByIndex
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
 --
@@ -140,8 +153,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm, xK_grave ), scratchpadSpawnActionCustom myScratchTerm)
 
     -- launch dmenu
-    , ((modm,               xK_p     ), spawn (menuCmd ++ " 2>&1 >/dev/null"))
- 
+    , ((modm,                  xK_p     ), spawn (menuCmd ++ " 2>&1 >/dev/null"))
+    , ((modm .|. controlMask,  xK_p     ), spawnSelected myGSSpawnConfig myGridSpawnList)
+    , ((modm .|. shiftMask,    xK_p     ), spawn (lmenuCmd ++ " 2>&1 >/dev/null"))
+    , ((0,                     xK_Menu  ), spawn (lmenuCmd ++ " 2>&1 >/dev/null"))
+
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
     , ((modm, xK_Escape     ), kill)
@@ -222,8 +238,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- screen lock and suspends
     , ((modm .|. shiftMask, xK_l ), spawn "xscreensaver-command -lock || xautolock -locknow")
     , ((mod1Mask .|. controlMask, xK_l ), spawn "xscreensaver-command -lock || xautolock -locknow")
-    , ((modm .|. shiftMask, xK_s ), spawn "(xscreensaver-command -lock || xautolock -locknow); sudo /usr/sbin/pm-suspend")
-    , ((modm              , xK_c     ), spawn "kcalc")
+    , ((mod1Mask .|. controlMask, xK_s ), spawn "(xscreensaver-command -lock || xautolock -locknow); sudo /usr/sbin/pm-suspend")
+
+    , ((modm              , xK_c     ), raiseMaybe (spawn "kcalc") (className =? "Kcalc"))
+
     -- Volume Up
     , ((0, xF86XK_AudioRaiseVolume      ), spawn "amixer sset Master 1%+;amixer sset 'Master Front' 1%+")
     -- Volume Down
@@ -235,11 +253,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_o                ), spawn "transset -p .7")
     -- grid select menus
     , ((modm .|. shiftMask, xK_Tab              ), goToSelected myGSConfig)
-    , ((modm .|. shiftMask, xK_p                ), spawnSelected myGSSpawnConfig myGridSpawnList)
+
+    , ((modm              , xK_z     ),        windowZoom)
+
 
     -- win8 sequences sent by touch device Logitech T650
     , ((mod4Mask .|. controlMask, xK_BackSpace           ), screenSwap R True)           -- one finger swipe from left edge
-    , ((mod4Mask .|. mod1Mask, 0x1008ffb1                ), spawn "xmessage boo")        -- one finger swipe from right edge
+    , ((mod4Mask .|. mod1Mask, 0x1008ffb1                ), spawn (lmenuCmd ++ " 2>&1 >/dev/null"))        -- one finger swipe from right edge
     , ((mod4Mask .|. controlMask, 0x1008ffb1             ), scratchpadSpawnActionCustom myScratchTerm)  -- one finger swipe from top edge
 --    , ((0, 0xffeb                                        ), spawn "xmessage '3 up'")     -- three finger swipe up (sends super_r same as mod4)
     , ((mod4Mask, xK_d                                   ), windowSwap D False)          -- three finger swipe down
@@ -315,18 +335,19 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm, button2), (\w -> focus w >> windows W.shiftMaster))
  
     -- mod-button3, Set the window to floating mode and resize by dragging
-    , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
-                                       >> windows W.shiftMaster))
+    , ((modm, button3),               (\w -> focus w >> mouseResizeWindow w
+                                         >> windows W.shiftMaster))
     , ((modm .|. shiftMask, button1), (\w -> focus w >> mouseResizeWindow w
-                                       >> windows W.shiftMaster))
+                                         >> windows W.shiftMaster))
  
-    , ((modm, button4), (\w -> focus w >> sendMessage MirrorExpand))
-    , ((modm, button5), (\w -> focus w >> sendMessage MirrorShrink))
-    , ((modm, button7), (\w -> focus w >> sendMessage Expand))
-    , ((modm, button6), (\w -> focus w >> sendMessage Shrink))
+    , ((modm, button4),               (\w -> focus w >> sendMessage MirrorExpand))
+    , ((modm, button5),               (\w -> focus w >> sendMessage MirrorShrink))
+    , ((modm, button7),               (\w -> focus w >> sendMessage Expand))
+    , ((modm, button6),               (\w -> focus w >> sendMessage Shrink))
     , ((modm .|. shiftMask, button4), (\w -> focus w >> sendMessage Expand))
     , ((modm .|. shiftMask, button5), (\w -> focus w >> sendMessage Shrink))
 
+--    T650 sends these for three finger swipes left and right
 --    , ((0, button8), (\w -> focus w >> windows W.swapUp))
 --    , ((0, button9), (\w -> focus w >> windows W.swapDown))
     , ((0, button8), (\w -> focus w >> windowSwap L False))
@@ -363,7 +384,7 @@ defaultLayout = avoidStruts $ renamed [CutWordsLeft 4] $ leftside $ reflectHoriz
     leftmatch = (Title "Speedbar 1.0")
 
     rightside = withIM (1/10) rightmatch
-    rightmatch = Or (Resource "xclock") $ Or (Role "buddy_list") $ (Title "blablabla")
+    rightmatch = Or (Resource "xclock") $ Or (Role "buddy_list") $ (Title "dzlauncher")
 
 gimpLayout     = avoidStruts
                     (withIM (1/10) (Role "gimp-toolbox")
@@ -439,7 +460,7 @@ myManageHook = composeAll . concat $
 --    doCopy1 = (ask >>= doF . \w -> (copyWindow w "1"))
     doCopyAll = doF copyToAll
     myCFloats = ["MPlayer", "Nvidia-settings", "XCalc", "XFontSel", "Xmessage"]
-    myTFloats = ["Downloads", "Firefox Preferences", "Save As..."] --"Buddy List"
+    myTFloats = ["Downloads", "Firefox Preferences", "Save As...", "User Identification Request"] --"Buddy List"
     myRFloats = ["kcalc"]
     myIgnores = ["desktop_window", "kdesktop", "cairo-dock"]
     myRlNoFloats = ["gimp-image-window", "gimp-dock", "gimp-toolbox"]
@@ -456,7 +477,7 @@ myManageHook = composeAll . concat $
     myAvoidMasters = ["konsole", "xchat", "urxvt", "screen", "Speedbar 1.0", "Ediff"]
     myCopyAlls = ["gcompris", "xclock"]
 --    myTrans = ["xclock", "Firefox", "Kate", "Okular", "Google-chrome"]
-    myOpaque = ["Audacious", "kcalc", "vlc", "mplayer", "Plugin-container", "URxvt", "screen", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Gwenview", "Vncviewer"]
+    myOpaque = ["Audacious", "kcalc", "vlc", "mplayer", "Plugin-container", "URxvt", "screen", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Xsane", "Gwenview", "Vncviewer"]
 
 clock = monitor {
   -- Cairo-clock creates 2 windows with the same classname, thus also using title
