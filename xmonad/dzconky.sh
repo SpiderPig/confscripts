@@ -213,7 +213,7 @@ printNetwork() {
     if [[ -e /sbin/iwconfig ]]; then
         ifconfig wlan0 >/dev/null 2>&1
         if [[ $? -eq 0 ]]; then
-            read  Niface Nessid Nap Nlink < <(iwconfig wlan0|tr -d '\n'|perl -pe 's/(\S*).*ESSID:"(\S*)".*Access Point: (\S*).*Link Quality=(\d+\/\d+).*/\1|\2|\3|\4\n/')
+            read  Niface Nessid Nap Npow Nlink < <(iwconfig wlan0|tr -d '\n'|perl -pe 's/(\S*).*ESSID:"?([^" ]*)"?.*Access Point: (\S*).*Tx-Power=(\S*).*(Link Quality=(\d+\/\d+).*)?/\1|\2|\3|\4|\5\n/')
 
             if [[ -n $Nlink ]]; then
                 IFS="/" lnk=( $Nlink )
@@ -224,13 +224,16 @@ printNetwork() {
 
             echo -n "^ca(1, wifi-radar)";
 #	    echo -n "^fg($COLOR_ICON)^i($ICONPATH/net-wifi.xbm) "
-            if [[ -n $Niface ]]; then
-                echo -n "^fg($DZEN_FG2)$Nessid "
-		echo -n "$(echo $Nlink | gdbar -fg $BAR_FG -bg $BAR_BG    -h 12 -w 10 -s v -sh 2 -ss 1 -sw 10 -nonl)"
-            else
+            if [[ -z $Npow || $Npow == "off" ]]; then
+                echo -n "^fg(#404040)$Niface "
+ 		echo -n "$(echo $Nlink | gdbar -fg \#404040 -bg \#202020  -h 12 -w 10 -s v -sh 2 -ss 1 -sw 10 -nonl)"
+            elif [[ $Nap == "Not-Associated" ]]; then
 #                echo -n "^fg($DZEN_FG2)wifi "
                 echo -n "^fg($DZEN_FG2)$Niface "
  		echo -n "$(echo $Nlink | gdbar -fg \#404040 -bg \#202020  -h 12 -w 10 -s v -sh 2 -ss 1 -sw 10 -nonl)"
+            else
+                echo -n "^fg($DZEN_FG2)$Nessid "
+		echo -n "$(echo $Nlink | gdbar -fg $BAR_FG -bg $BAR_BG    -h 12 -w 10 -s v -sh 2 -ss 1 -sw 10 -nonl)"
             fi
             echo -n "^ca()"
 	    printSpace
