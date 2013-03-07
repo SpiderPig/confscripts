@@ -5,7 +5,7 @@ BAR_H=8
 PIE_H=14
 BIGBAR_W=60
 SMABAR_W=30
-HEIGHT=17
+HEIGHT=18
 
 X_POS=0
 Y_POS=0
@@ -19,7 +19,7 @@ else
 fi
 DZEN_WIDTH=$(($XRES/$NUM_SCRNS))
 
-CLOCKPOS=$((DZEN_WIDTH-180))
+CLOCKPOS=$((DZEN_WIDTH-180-30))
 
 
 #Look and feel
@@ -30,18 +30,22 @@ BAR_BG="#3f6a73"
 DZEN_FG="#adadad"
 DZEN_FG2="#7f757b"
 
-DZEN_BG="#050505"
+DZEN_BG="#000000"
+DZEN_OUTLINE="#606060" # "#63a5b3"
 COLOR_ICON="#adadad"
 ICONPATH="$HOME/.icons/dzen-xbm"
 #COLOR_SEP="#007b8c"
 COLOR_SEP="#63a5b3"
 FONT="xft:Clean:style=bold:size=9:antialias=true"
 #-*-clean-bold-r-normal-*-12-*-*-*-*-*-*-*
+SEP_CODE="   ^fg(${DZEN_OUTLINE})^r(1x${HEIGHT})^fg(#000000)^r(2x${HEIGHT})^fg(${DZEN_OUTLINE})^r(1x${HEIGHT}) "
 
 #Options
 IFS='|' #internal field separator (conky)
 CONKYFILE="~/.conkyrc"
 INTERVAL=1
+
+
 CPUTemp=0
 GPUTemp=0
 HDDTemp=0
@@ -154,6 +158,7 @@ printBattery() {
 		else
 			echo -n "$(echo $RPERC | gdbar -fg $CRIT -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -ss 1 -sw 4 -nonl)"
 		fi
+                echo -ne "$SEP_CODE"
 	fi
 	return
 }
@@ -213,7 +218,7 @@ printNetwork() {
     if [[ -e /sbin/iwconfig ]]; then
         ifconfig wlan0 >/dev/null 2>&1
         if [[ $? -eq 0 ]]; then
-            read  Niface Nessid Nap Npow Nlink < <(iwconfig wlan0|tr -d '\n'|perl -pe 's/(\S*).*ESSID:"?([^" ]*)"?.*Access Point: (\S*).*Tx-Power=(\S*).*(Link Quality=(\d+\/\d+).*)?/\1|\2|\3|\4|\5\n/')
+            read  Niface Nessid Nap Npow Nlink < <(iwconfig wlan0|tr -d '\n'|perl -pe 's/(\S*).*ESSID:"?([^" ]*)"?.*Access Point: (\S*).*Tx-Power=(\S*)(.*Link Quality=(\d+\/\d+))?.*/\1|\2|\3|\4|\6\n/')
 
             if [[ -n $Nlink ]]; then
                 IFS="/" lnk=( $Nlink )
@@ -226,17 +231,23 @@ printNetwork() {
 #	    echo -n "^fg($COLOR_ICON)^i($ICONPATH/net-wifi.xbm) "
             if [[ -z $Npow || $Npow == "off" ]]; then
                 echo -n "^fg(#404040)$Niface "
- 		echo -n "$(echo $Nlink | gdbar -fg \#404040 -bg \#202020  -h 12 -w 10 -s v -sh 2 -ss 1 -sw 10 -nonl)"
+                WFI_FG="#404040"
+                WFI_BG="#202020"
             elif [[ $Nap == "Not-Associated" ]]; then
-#                echo -n "^fg($DZEN_FG2)wifi "
                 echo -n "^fg($DZEN_FG2)$Niface "
- 		echo -n "$(echo $Nlink | gdbar -fg \#404040 -bg \#202020  -h 12 -w 10 -s v -sh 2 -ss 1 -sw 10 -nonl)"
+                WFI_FG="#404040"
+                WFI_BG="#202020"
             else
                 echo -n "^fg($DZEN_FG2)$Nessid "
-		echo -n "$(echo $Nlink | gdbar -fg $BAR_FG -bg $BAR_BG    -h 12 -w 10 -s v -sh 2 -ss 1 -sw 10 -nonl)"
+                WFI_FG=$BAR_FG
+                WFI_BG=$BAR_BG
             fi
-            echo -n "^ca()"
-	    printSpace
+
+#	    echo -n "$(echo $Nlink | gdbar -fg $WFI_FG -bg $WFI_BG    -h 15 -w 10 -s v -sh 2 -ss 1 -sw 12 -nonl)"
+	    echo -n "$(echo $Nlink | gdbar -fg $WFI_FG -bg $WFI_BG    -h $BAR_H -w 18  -sw 2 -ss 1 -nonl)"
+
+            echo -n "^ca()^ib(1) "
+#	    printSpace
         fi
     fi
 }
@@ -265,24 +276,32 @@ printArrow() {
 printBar1() {
 		read CPULoad0 CPULoad1 CPULoad2 CPULoad3 CPUFreq MemUsed MemPerc Uptime TopProc
                 echo -n "0 "
+                echo -ne "^p(_TOP)^fg(${DZEN_OUTLINE})^ro($((DZEN_WIDTH-2))x${HEIGHT-4})^p($((2-DZEN_WIDTH)))^p()^p(;1)^ib(1)^p()"
 		printHostInfo
-		printSpace
+                echo -ne "$SEP_CODE"
+#		printSpace
 		printCPUInfo
-		printSpace
+                echo -ne "$SEP_CODE"
+#		printSpace
 		printMemInfo
-                printSpace
+                echo -ne "$SEP_CODE"
+#               printSpace
 #		printArrow
 		printDiskInfo
-		printSpace
+                echo -ne "$SEP_CODE"
+#		printSpace
 #		printFileInfo
 #		printSpace
 		printTempInfo
-		printSpace
+                echo -ne "$SEP_CODE"
+#		printSpace
 		printBattery
-		printSpace
+#		printSpace
 		printVolInfo
-		printSpace
+                echo -ne "$SEP_CODE"
+#		printSpace
                 printNetwork
+
                 printAlarm
 #		echo -n $TopProc
 		echo
@@ -292,6 +311,7 @@ printBar1() {
 printBarClock() {
                 echo -n "9 "
 		echo -n "^pa($CLOCKPOS)"
+                echo -n "$SEP_CODE"
 		printDateInfo
 		echo
 	return
@@ -362,7 +382,7 @@ streamDynLogBar() {
 	        read logstr
 	    (
 	      flock 200
-	      echo "3    ^fg($COLOR_ICON)^i($ICONPATH/page_layout.xbm) $logstr   " >~/tmp/dmpipe
+	      echo "3 ${SEP_CODE}^fg($COLOR_ICON)^i($ICONPATH/page_layout.xbm) $logstr   " >~/tmp/dmpipe
             ) 200>~/tmp/dmlock
 	done
 	return
