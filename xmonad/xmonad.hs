@@ -233,12 +233,17 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Restart my dzen status bar.
     , ((modm              , xK_r     ), spawn "xmonad --recompile;" >> io exitHook)
-    , ((modm .|. shiftMask, xK_r     ), spawn "killall conky; killall dzconky.sh; killall dzen2; xmonad --recompile; ~/.xmonad/dzconky.sh")
+    , ((modm .|. shiftMask, xK_r     ), spawn "killall conky; killall dzconky.sh; killall dzen2; ~/.xmonad/dzconky.sh")
+    , ((modm .|. controlMask, xK_r   ), spawn "killall conky; killall dzconky.sh; killall dzen2; conky -c ~/.lpannel/conkyrc_lpan")
+    -- switch modes for disconnected vga monitor
+    , ((modm              , xK_v     ), spawn "[[ -e ~/tmp/disvga ]] && rm ~/tmp/disvga || echo -n yes >~/tmp/disvga")
+
 
     -- screen lock and suspends
     , ((modm .|. shiftMask, xK_l ), spawn "xscreensaver-command -lock || xautolock -locknow")
     , ((mod1Mask .|. controlMask, xK_l ), spawn "xscreensaver-command -lock || xautolock -locknow")
     , ((mod1Mask .|. controlMask, xK_s ), spawn "(xscreensaver-command -lock || xautolock -locknow); sudo /usr/sbin/pm-suspend")
+    , ((modm .|. mod1Mask,        xK_l ), spawn "alock -auth pam")
 
     , ((modm              , xK_c     ), raiseMaybe (spawn "kcalc") (className =? "Kcalc"))
 
@@ -447,7 +452,7 @@ myManageHook = composeAll . concat $
 --    , [resource =? "konsole" --> (ask >>= \w -> liftX (focus w >> windows W.shiftMaster) >> idHook)]
 --    , [(className =? "dzen" <||> title =? "dzen" <||> resource =? "dzen") --> doTransparent 0xb2000000]
     , [(className =? x <||> title =? x <||> resource =? x) --> doCopyAll | x <- myCopyAlls]
-    , [scratchpadManageHook $ W.RationalRect 0 (16/1200) 1 0.42]
+    , [scratchpadManageHook $ W.RationalRect 0 (32/1200) 1 0.42]
     , [resource =? "scratchpad" --> doTransparent 0xFF000000]
     , [manageDocks]
     ]
@@ -477,7 +482,7 @@ myManageHook = composeAll . concat $
     myAvoidMasters = ["konsole", "xchat", "urxvt", "screen", "Speedbar 1.0", "Ediff"]
     myCopyAlls = ["gcompris", "xclock"]
 --    myTrans = ["xclock", "Firefox", "Kate", "Okular", "Google-chrome"]
-    myOpaque = ["Audacious", "kcalc", "vlc", "mplayer", "Plugin-container", "URxvt", "screen", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Xsane", "Gwenview", "Vncviewer"]
+    myOpaque = ["Audacious", "kcalc", "vlc", "mplayer", "Plugin-container", "URxvt", "screen", "status bar", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Xsane", "Gwenview", "Vncviewer"]
 
 clock = monitor {
   -- Cairo-clock creates 2 windows with the same classname, thus also using title
@@ -507,13 +512,18 @@ myEventHook = docksEventHook
 ------------------------------------------------------------------------
 -- Status bars and logging
 
---myLogHook = dynamicLogXinerama
+-- myLogHook = dynamicLogXinerama
 myLogHook = dynamicLogWithPP defaultPP { ppOutput  = hPutStrLn ?hlogpipe
---                                         , ppSort  = getSortByXineramaRule
                                          , ppCurrent  = dzenColor "cyan" "black"
                                          , ppVisible  = dzenColor "#63a5b3" "black"
                                          , ppUrgent   = dzenColor "black" "cyan"
-                                         , ppSort  = fmap (.scratchpadFilterOutWorkspace) getSortByIndex
+--                                         , ppSort  = fmap (.scratchpadFilterOutWorkspace) getSortByIndex
+
+                                         , ppSort  = fmap (.scratchpadFilterOutWorkspace) getSortByXineramaRule
+--                                         , ppCurrent  = wrap "" ""
+--                                         , ppVisible  = wrap "" ""
+--                                         , ppUrgent   = wrap "*" ""
+
                                          , ppTitle = (\str -> "")}
                                >> updatePointer (Relative 0.5 0.5)
 -- myLogHook = dynamicLog >> execScriptHook "logscript"
