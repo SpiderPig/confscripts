@@ -1,0 +1,45 @@
+background no
+update_interval 1
+
+cpu_avg_samples 2
+net_avg_samples 2
+temperature_unit celsius
+
+double_buffer yes
+no_buffers yes
+text_buffer_size 2048
+
+gap_x 0
+gap_y 0
+#minimum_size 1920 32
+minimum_size 3840 32
+#maximum_width 1920
+own_window yes
+own_window_type panel
+#override
+own_window_transparent yes
+own_window_hints undecorate,sticky,skip_taskbar,skip_pager,below
+own_window_title status bar
+border_inner_margin 0
+border_outer_margin 0
+alignment tl
+
+draw_shades no
+draw_outline no
+draw_borders no
+draw_graph_borders no
+
+override_utf8_locale yes
+use_xft yes
+xftfont clean:size=10
+xftalpha 0.1
+uppercase no
+
+default_color FFFFFF
+color1 00FFBB
+
+lua_load ~/.lpannel/conky_lpan.lua
+lua_draw_hook_post main
+
+TEXT
+
