@@ -40,6 +40,7 @@ color1 00FFBB
 
 lua_load ~/.lpannel/conky_lpan.lua
 lua_draw_hook_post main
+lua_shutdown_hook shutdown
 
 TEXT
 

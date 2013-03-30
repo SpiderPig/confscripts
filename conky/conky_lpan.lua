@@ -1,5 +1,6 @@
 require 'cairo'
 require 'imlib2'
+require 'mouse'
 --------------------------------------------------------------------------------
 --                                                                  appearance
 font="Droid Sans"
@@ -23,11 +24,12 @@ font_face=CAIRO_FONT_WEIGHT_BOLD
 
 icon_path=os.getenv('HOME').."/.icons/pannel/"
 
+-- define the physical screen layout. 
 screens = {
 {
    width=0,
-   head=1,
-   xpos=2,
+   head=1,            -- corresponds to the xwindow screen order
+   xpos=2,            -- viewport position
    connected='yes',
 },
 {
@@ -49,6 +51,18 @@ desktops = {
    workspace=2,
    layout='temp',
    urgent=0,
+}
+}
+vis=""
+
+-- example mouse region will be dynamicaly filled from the gauge definitions
+mregions = {
+{
+  x1=1280,                         y1=16,
+  x2=1296,                         y2=32,
+   onclick=function(x, y)
+              os.execute("echo hi")
+           end
 }
 }
 
@@ -513,7 +527,7 @@ mixer = {
     cmd='amixer get Master|perl -pe \'s/.*: Playback \\d+ \\\[(\\d+)%\\\].*/\\1/; if ($_ > $g){$g = $_;} $_=$g;\'|tail -1',
     max_value=100,
     x=1200,                         y=18,
-    graph_radius=15,
+    graph_radius=14,
     graph_thickness=4,
     graph_start_angle=0,
     graph_unit_angle=3.59,         graph_unit_thickness=4,
@@ -523,13 +537,14 @@ mixer = {
     txt_radius=12,
     txt_weight=1,                  txt_size=10.0,
     txt_fg_colour=color_graph1,        txt_fg_alpha=0.0,
-    graduation_radius=11,
+    graduation_radius=10,
     graduation_thickness=4,        graduation_mark_thickness=3,
     graduation_unit_angle=30,
-    graduation_fg_colour=color_graph1, graduation_fg_alpha=1,
+    graduation_fg_colour=color_graph1, graduation_fg_alpha=0.7,
     caption='',
     caption_weight=1,              caption_size=9.0,
     caption_fg_colour=color_txt1,  caption_fg_alpha=0.7,
+    hideonvalue=-1,
     tick = function(data)
               local file = io.popen("amixer get Master|perl -pe \'s/.* \\\[(o\[nf\]f?)\]/\\1/\'|tail -1")
               local mute= file:read("*a")
@@ -543,7 +558,23 @@ mixer = {
                  data.graph_fg_colour=color_graph1
                  data.graduation_fg_colour=color_graph1
               end
-           end
+           end,
+    onclick = function(data, x, y)
+                 local dist = math.sqrt((x - data.drawn_x)^2.0 + (y - data.drawn_y)^2.0)
+--                 print ((x - data.drawn_x), (y - data.drawn_y))
+                 if dist < 5.0 then
+                    os.execute("((amixer sset Master toggle)&)")
+                 else
+                    local at = math.atan2 ((y - data.drawn_y), (x - data.drawn_x))
+                    if at < 0 then at = at + math.pi * 2 end
+                    local ang = position_to_angle(data['graph_start_angle'], at)
+                    if ang < 9 or ang > 351 then ang = 360 end
+                    local val = ang / data['graph_unit_angle']
+--                    print (val)
+                    os.execute("((amixer sset Master "..val.."%)&)")
+                 end
+              end,
+    extent_x=15,                    extent_y=15,
 },
 workspace1 = {
     type="text",                   arg='',
@@ -682,7 +713,12 @@ wifi = {
               end
               data.txt_fg_colour    = data.graph_fg_colour
               data.value            = Nlink
-           end
+           end,
+    onclick = function(data, x, y)
+                 print (x,y)
+                 os.execute("((wifi-radar)&)")
+              end,
+    extent_x=22, extent_y=22,
 },
 
 -- {
@@ -819,13 +855,16 @@ btime = {
     x=1260,                         y=16, --        relativeto='bat',
  --   w=16,                           h=16,
 },
-{
+snort = {
     type="image",     -- touch -r /var/log/snort/alert ~/tmp/snorttime
 --    name='',           arg='',
     value=icon_path..'bug.xpm',
     hideeval='${if_match "${exec if [ ~/tmp/snorttime -ot /var/log/snort/alert ]; then echo -n yes; else echo -n no; fi}" == "no"}hide${else}show${endif}', 
     rate=5,
-    x=1280,                         y=16, --        relativeto='bat',
+    x=1280,                         y=16,
+    onclick = function(data, x, y)
+                 os.execute("((touch -r /var/log/snort/alert ~/tmp/snorttime)&)")
+              end
 },
 {
     type="image",
@@ -844,6 +883,9 @@ btime = {
     rate=600,
     x=1320,                         y=16, --        relativeto='bat',
  --   w=16,                           h=16,
+    onclick = function(data, x, y)
+                 os.execute("((firefox \'https://mail.google.com/mail/?tab=wm#inbox\')&)")
+              end
 },
 iptssh = {
     type="image",
@@ -902,7 +944,12 @@ end
 --
 function angle_to_position(start_angle, current_angle)
     local pos = current_angle + start_angle
-    return ( ( pos * (2 * math.pi / 360) ) - (math.pi / 2) )
+    return ( ( pos * (math.pi / 180) ) - (math.pi / 2) )
+end
+
+function position_to_angle(start_angle, position)
+   local pos = (position + (math.pi / 2)) * (180 / math.pi)
+   return (pos - start_angle) % 360
 end
 
 
@@ -961,7 +1008,18 @@ function draw_gauge_ring(display, data, value)
     cairo_arc(display, x, y, graph_radius, angle_to_position(graph_start_angle, 0), angle_to_position(graph_start_angle, graph_end_angle))
     cairo_set_source_rgba(display, rgb_to_r_g_b(graph_bg_colour, graph_bg_alpha))
     cairo_set_line_width(display, graph_thickness)
+
+--    if only this were true
+--    extents=cairo_extents_t:create()
+--    cairo_stroke_extents(display, extents)
+--    data['extent_x1'], data['extent_y1'] = extents.x1, extents.y1
+--    data['extent_x2'], data['extent_y2'] = extents.x2, extents.y2
     cairo_stroke(display)
+    
+--    data['extent_x'] = math.abs(math.cos(angle_to_position(graph_start_angle, 0)) * graph_radius -
+--                        math.cos(angle_to_position(graph_start_angle, graph_end_angle)) * graph_radius)
+--    data['extent_y'] = math.abs(math.sin(angle_to_position(graph_start_angle, 0)) * graph_radius -
+--                        math.sin(angle_to_position(graph_start_angle, graph_end_angle)) * graph_radius)
 
     -- arc of value
     local val = value % (max_value + 1)
@@ -1057,10 +1115,13 @@ function draw_text_field(display, data, value)
     cairo_select_font_face (display, font, font_slant, font_face);
     cairo_set_font_size (display, font_size)
 
-    extents=cairo_text_extents_t:create()
+    local extents=cairo_text_extents_t:create()
     cairo_text_extents(display, value, extents)
+    tolua.takeownership(extents)
     local width=extents.width
     local height=extents.height
+
+    data['extent_x'], data['extent_y'] = width, height
 
     if data['align_x'] ~= nil and data['align_x'] == 'right' then
        x = x - width
@@ -1089,16 +1150,21 @@ function draw_image(display, data, value)
 
     if data['imagedata'] == nil then
        data['imagedata'] = imlib_load_image(value)
+       print ("loading image "..value)
     end
 
     if data['imagedata'] == nil then return end
 
     imlib_context_set_image(data['imagedata'])
     if data['h'] == nil or data['w'] == nil then
+       data['extent_x'], data['extent_y'] = imlib_image_get_width(), imlib_image_get_height()
        imlib_render_image_on_drawable(x, y)
     else
+       data['extent_x'], data['extent_y'] = w, h
        imlib_render_image_on_drawable_at_size(x, y, w, h)
     end
+
+
 --    imlib_free_image()
 
 end
@@ -1176,13 +1242,37 @@ function go_gauge_rings(display)
           elseif data.type == "image" then draw_image(display, data, str)
           end
 
-          if value == nil then return end
-
-          if     data.type == "gauge" then draw_gauge_ring(display, data, value)
+          if value ~= nil then
+             if  data.type == "gauge" then draw_gauge_ring(display, data, value)
+             end
           end
+       end --if hide
+       
+        if data['onclick'] ~= nil and
+          data['drawn_x'] ~= nil and data['drawn_y'] ~= nil and
+          data['extent_x'] ~= nil and data['extent_y'] ~= nil then
+          local lx1, ly1 = data.drawn_x, data.drawn_y
+          local lx2, ly2 = data.drawn_x + data.extent_x,  data.drawn_y + data.extent_y
+          if data['type'] == "gauge" then
+             lx1 = data.drawn_x - data['graph_radius'] - data['graph_thickness']
+             ly1 = data.drawn_y - data['graph_radius'] - data['graph_thickness']
+             lx2 = data.drawn_x + data['graph_radius'] + data['graph_thickness']
+             ly2 = data.drawn_y + data['graph_radius'] + data['graph_thickness']
+          elseif data['type'] == "text" then
+             ly2 = data.drawn_y
+             ly1 = ly2 - data.extent_y
+          end
+          table.insert(mregions, {x1=lx1,  y1=ly1,
+                                  x2=lx2,  y2=ly2,
+                                  onclick=function(x, y)
+                                             return data.onclick (data, x, y)
+                                          end
+                               })
        end
     end
     
+    mregions={}
+
     for i in pairs(gauge) do
        load_graph_object(display, gauge[i])
     end
@@ -1251,34 +1341,35 @@ function conky_main()
         local dynlog= file:read("*a")
         file:close()
         -- print ("dynlog: "..dynlog)
+        if string.len (dynlog) > 2 then
+           start, finish, dt1 = string.find (dynlog, "(%S*)")
+           start, finish, dt2 = string.find (dynlog, "%s(%S*)", finish)
+           start, finish, vis = string.find (dynlog, "%s(.*):", finish)
+           start, finish, lay = string.find (dynlog, ":%s(.*)\n", finish)
+           local dt_name=conky_parse('${desktop_name}')
 
-        start, finish, dt1 = string.find (dynlog, "(%S*)")
-        start, finish, dt2 = string.find (dynlog, "%s(%S*)", finish)
-        start, finish, vis = string.find (dynlog, "%s(.*):", finish)
-        start, finish, lay = string.find (dynlog, ":%s(.*)\n", finish)
-        local dt_name=conky_parse('${desktop_name}')
-
-        if string.sub(dt1, 1, 1) == '*' then
-           desktops[1].workspace=string.sub(dt1,2)
-           desktops[1].urgent=1
-        else
-           desktops[1].workspace=dt1
-           desktops[1].urgent=0
-        end
-
-        if screens[2].head > 0 then
-           if string.sub(dt2, 1, 1) == '*' then
-              desktops[2].workspace=string.sub(dt2,2)
-              desktops[2].urgent=1
+           if string.sub(dt1, 1, 1) == '*' then
+              desktops[1].workspace=string.sub(dt1,2)
+              desktops[1].urgent=1
            else
-              desktops[2].workspace=dt2
-              desktops[2].urgent=0
+              desktops[1].workspace=dt1
+              desktops[1].urgent=0
            end
-        end
 
-        for i in pairs(desktops) do
-           if dt_name == desktops[i].workspace then
-              desktops[i].layout = lay
+           if screens[2].head > 0 then
+              if string.sub(dt2, 1, 1) == '*' then
+                 desktops[2].workspace=string.sub(dt2,2)
+                 desktops[2].urgent=1
+              else
+                 desktops[2].workspace=dt2
+                 desktops[2].urgent=0
+              end
+           end
+
+           for i in pairs(desktops) do
+              if dt_name == desktops[i].workspace then
+                 desktops[i].layout = lay
+              end
            end
         end
 
@@ -1334,6 +1425,10 @@ function conky_main()
                 size=12,
                 slant=CAIRO_FONT_SLANT_NORMAL,
                 face=CAIRO_FONT_WEIGHT_BOLD,
+                onclick = function(data, x, y)
+                             print (data.value)
+                             os.execute("((xdotool set_desktop "..data.value..")&)")
+                          end,
              }
           else
 --             gauge[viskey].visx, gauge[viskey].visy = x,y
@@ -1389,35 +1484,36 @@ function conky_main()
     if update_num > 5 then
         go_gauge_rings(display)
 
---     conky_parse('${image /home/matt/.icons/firefox-document.png -s 16x16 -p 800,16}')
+-- Process mouse events
+        --overx, overy = mouse_location("status bar")
+        local function process_mregion(region, x, y)
+           if x >= region['x1'] and
+              x <= region['x2'] and
+              y >= region['y1'] and
+              y <= region['y2'] then
+              region.onclick(x, y)
+           end
+        end
 
---     local show = imlib_load_image('/home/matt/.icons/firefox-document.png')
---      local show = imlib_load_image('/home/matt/.icons/dzen-xbm/sound_high.xpm')
---      if show == nil then return end
---      imlib_context_set_image(show)
--- --     imlib_render_image_on_drawable(800, 16)
---      imlib_render_image_on_drawable_at_size(1192, 10, 16, 16)
---      imlib_free_image()
-
-
---     local width, height = 16, 16
--- 
---       w_img, h_img = imlib_image_get_width(), imlib_image_get_height()
---       buffer = imlib_create_image(width, height)
---       imlib_context_set_image(buffer)
---         imlib_blend_image_onto_image(show, 1, 0, 0, w_img, h_img, 0, 0, width, height)
--- 
---       imlib_context_set_image(show);  imlib_free_image();
--- 
---     imlib_context_set_image(buffer)
---       imlib_render_image_on_drawable(1192, 10)
---     imlib_free_image()
-
---        internet=conky_parse("${if_up wlan0}1${else}0${endif}")
-
+        while true do
+           clickx, clicky = mouse_click("status bar")
+           if clickx ~= nil and clicky ~= nil then
+              if mregions ~= nil then
+                 --print ("mouse "..clickx.." "..clicky)
+                 for i in pairs(mregions) do
+                    process_mregion(mregions[i], clickx, clicky)
+                 end
+              end
+           else
+              break
+           end
+        end
     end
     
     cairo_surface_destroy(cs)
     cairo_destroy(display)
 end
 
+function conky_shutdown()
+   mouse_shutdown("status bar")
+end
