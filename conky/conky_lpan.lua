@@ -55,7 +55,7 @@ desktops = {
 }
 vis=""
 
--- example mouse region will be dynamicaly filled from the gauge definitions
+-- example mouse region.  Table is rebuilt dynamicaly from the gauge definitions each tick
 mregions = {
 {
   x1=1280,                         y1=16,
@@ -1342,29 +1342,23 @@ function conky_main()
         file:close()
         -- print ("dynlog: "..dynlog)
         if string.len (dynlog) > 2 then
-           start, finish, dt1 = string.find (dynlog, "(%S*)")
-           start, finish, dt2 = string.find (dynlog, "%s(%S*)", finish)
+           count = 1
+           finish = 1
+           while screens[count] ~= nil and screens[count].head > 0 do
+              start, finish, dt = string.find (dynlog, "%s*(%S*)%s?", finish)
+              if string.sub(dt, 1, 1) == '*' then
+                 desktops[count].workspace=string.sub(dt,2)
+                 desktops[count].urgent=1
+              else
+                 desktops[count].workspace=dt
+                 desktops[count].urgent=0
+              end
+              count = count + 1
+           end
+
            start, finish, vis = string.find (dynlog, "%s(.*):", finish)
            start, finish, lay = string.find (dynlog, ":%s(.*)\n", finish)
            local dt_name=conky_parse('${desktop_name}')
-
-           if string.sub(dt1, 1, 1) == '*' then
-              desktops[1].workspace=string.sub(dt1,2)
-              desktops[1].urgent=1
-           else
-              desktops[1].workspace=dt1
-              desktops[1].urgent=0
-           end
-
-           if screens[2].head > 0 then
-              if string.sub(dt2, 1, 1) == '*' then
-                 desktops[2].workspace=string.sub(dt2,2)
-                 desktops[2].urgent=1
-              else
-                 desktops[2].workspace=dt2
-                 desktops[2].urgent=0
-              end
-           end
 
            for i in pairs(desktops) do
               if dt_name == desktops[i].workspace then
