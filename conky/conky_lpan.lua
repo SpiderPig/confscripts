@@ -18,6 +18,7 @@ color_graph1=0x63a5b3
 color_graph2=0xadadad
 
 color_alert=0xFF0000
+std_graph_fg_alpha=0.5
 
 font_slant=CAIRO_FONT_SLANT_NORMAL
 font_face=CAIRO_FONT_WEIGHT_BOLD
@@ -76,9 +77,9 @@ cpu0 = {
     graph_radius=16,
     graph_thickness=2,
     graph_start_angle=0,
-    graph_unit_angle=3.59,          graph_unit_thickness=0.9,
+    graph_unit_angle=3.6,              graph_unit_thickness=3.6,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=1.0,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
     txt_radius=0,
     txt_weight=1,                  txt_size=10.0,
@@ -98,9 +99,9 @@ cpu1 = {
     graph_radius=13,
     graph_thickness=2,
     graph_start_angle=0,
-    graph_unit_angle=3.59,          graph_unit_thickness=0.9,
+    graph_unit_angle=3.6,              graph_unit_thickness=3.6,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=1.0,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
     txt_radius=0,
     txt_weight=1,                  txt_size=10.0,
@@ -120,9 +121,9 @@ cpu2 = {
     graph_radius=10,
     graph_thickness=2,
     graph_start_angle=0,
-    graph_unit_angle=3.59,         graph_unit_thickness=0.9,
+    graph_unit_angle=3.6,              graph_unit_thickness=3.6,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=1.0,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
     txt_radius=0,
     txt_weight=1,                  txt_size=10.0,
@@ -142,9 +143,9 @@ cpu3 = {
     graph_radius=7,
     graph_thickness=2,
     graph_start_angle=0,
-    graph_unit_angle=3.59,          graph_unit_thickness=0.9,
+    graph_unit_angle=3.6,              graph_unit_thickness=3.6,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=1.0,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
     txt_radius=0,
     txt_weight=1,                  txt_size=10.0,
@@ -190,9 +191,9 @@ memgauge = {
     graph_radius=29,
     graph_thickness=3,
     graph_start_angle=-90,
-    graph_unit_angle=1.55,          graph_unit_thickness=2,
+    graph_unit_angle=1.55,          graph_unit_thickness=1.55,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=0.2,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
     txt_radius=16,
     txt_weight=1,                  txt_size=10.0,
@@ -225,9 +226,9 @@ swapgauge = {
     graph_radius=24,
     graph_thickness=3,
     graph_start_angle=-90,
-    graph_unit_angle=1.50,          graph_unit_thickness=2,
+    graph_unit_angle=1.50,          graph_unit_thickness=1.5,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=0.2,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
     txt_radius=16,
     txt_weight=1,                  txt_size=6.0,
@@ -247,9 +248,9 @@ fsroot = {
     graph_radius=14,
     graph_thickness=4,
     graph_start_angle=270,
-    graph_unit_angle=3.59,         graph_unit_thickness=4,
+    graph_unit_angle=3.6,              graph_unit_thickness=3.6,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=0.2,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=0,
     txt_radius=12,
     txt_weight=1,                  txt_size=10.0,
@@ -272,9 +273,9 @@ fshome = {
     graph_radius=14,
     graph_thickness=4,
     graph_start_angle=270,
-    graph_unit_angle=3.59,         graph_unit_thickness=4,
+    graph_unit_angle=3.6,         graph_unit_thickness=3.6,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=0.2,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=0,
     txt_radius=12,
     txt_weight=1,                  txt_size=10.0,
@@ -448,9 +449,9 @@ tempcpu = {
     graph_radius=24,
     graph_thickness=5,
     graph_start_angle=-90,
-    graph_unit_angle=.9,               graph_unit_thickness=2,
+    graph_unit_angle=.9,               graph_unit_thickness=.9,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=0.2,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
     txt_radius=34,
     txt_weight=1,                      txt_size=10,
@@ -475,9 +476,9 @@ temphdd = {
     graph_radius=24,
     graph_thickness=5,
     graph_start_angle=-90,
-    graph_unit_angle=1.3,               graph_unit_thickness=2,
+    graph_unit_angle=1.3,               graph_unit_thickness=1.3,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=0.2,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
     txt_radius=34,
     txt_weight=1,                      txt_size=10,
@@ -502,9 +503,9 @@ tempgpu = {
     graph_radius=24,
     graph_thickness=5,
     graph_start_angle=-90,
-    graph_unit_angle=.9,               graph_unit_thickness=2,
+    graph_unit_angle=.9,               graph_unit_thickness=.9,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=0.2,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
     txt_radius=34,
     txt_weight=1,                      txt_size=10,
@@ -525,20 +526,20 @@ mixer = {
     id='mixer',
  --   name='mixer',           arg='',
     cmd='amixer get Master|perl -pe \'s/.*: Playback \\d+ \\\[(\\d+)%\\\].*/\\1/; if ($_ > $g){$g = $_;} $_=$g;\'|tail -1',
-    max_value=100,
+    max_value=20,                   value_unit=5,
     x=1200,                         y=18,
     graph_radius=14,
     graph_thickness=4,
     graph_start_angle=0,
-    graph_unit_angle=3.59,         graph_unit_thickness=4,
+    graph_unit_angle=18,               graph_unit_thickness=14,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=0.3,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=0,
     txt_radius=12,
     txt_weight=1,                  txt_size=10.0,
     txt_fg_colour=color_graph1,        txt_fg_alpha=0.0,
     graduation_radius=10,
-    graduation_thickness=4,        graduation_mark_thickness=3,
+    graduation_thickness=0,        graduation_mark_thickness=3,
     graduation_unit_angle=30,
     graduation_fg_colour=color_graph1, graduation_fg_alpha=0.7,
     caption='',
@@ -569,7 +570,7 @@ mixer = {
                     if at < 0 then at = at + math.pi * 2 end
                     local ang = position_to_angle(data['graph_start_angle'], at)
                     if ang < 9 or ang > 351 then ang = 360 end
-                    local val = ang / data['graph_unit_angle']
+                    local val = ang / data['graph_unit_angle'] * data['value_unit']
 --                    print (val)
                     os.execute("((amixer sset Master "..val.."%)&)")
                  end
@@ -647,15 +648,15 @@ layout2 = {
 
 wifi = {
     type="gauge",
-    arg='',                      max_value=100,
+    arg='',                      max_value=7,
     rate=4,
     x=1080,                         y=32,
     graph_radius=22,
     graph_thickness=8,
     graph_start_angle=-90,
-    graph_unit_angle=1.2,               graph_unit_thickness=2,
+    graph_unit_angle=17,               graph_unit_thickness=13,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=0.2,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=0.0,
     txt_radius=34,
     txt_weight=1,                      txt_size=10,
@@ -683,7 +684,7 @@ wifi = {
               start, finish, NlinkNum  = string.find (wifi, "|(%d*)", finish)
               start, finish, NlinkDen  = string.find (wifi, "/(.*)|", finish)
               if NlinkNum ~= nil and NlinkDen ~= nil then
-                 Nlink = 100 * tonumber(NlinkNum) / tonumber(NlinkDen)
+                 Nlink = 7 * tonumber(NlinkNum) / tonumber(NlinkDen)
               else
                  Nlink = 0
               end
@@ -746,9 +747,9 @@ bat = {
     graph_radius=12,
     graph_thickness=8,
     graph_start_angle=0,
-    graph_unit_angle=3.599,            graph_unit_thickness=2,
+    graph_unit_angle=3.6,              graph_unit_thickness=3.6,
     graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
-    graph_fg_colour=color_graph1,      graph_fg_alpha=0.2,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
     hand_fg_colour=color_graph1,       hand_fg_alpha=0.0,
     txt_radius=34,
     txt_weight=1,                      txt_size=10,
@@ -990,6 +991,10 @@ end
 function draw_gauge_ring(display, data, value)
     local max_value = data['max_value']
     local x, y = compute_relative(data)
+    if data['value_unit'] ~= nil then
+       value, fr = math.modf(value / data['value_unit'])
+       if fr >= 0.5 then value = value + 1 end
+    end
 
     local graph_radius = data['graph_radius']
     local graph_thickness, graph_unit_thickness = data['graph_thickness'], data['graph_unit_thickness']
@@ -1002,27 +1007,43 @@ function draw_gauge_ring(display, data, value)
        if data['alert_graph_fg_colour'] ~= nil then graph_fg_colour = data['alert_graph_fg_colour'] end
        if data['alert_graph_bg_colour'] ~= nil then graph_bg_colour = data['alert_graph_bg_colour'] end
     end
-    local graph_end_angle = (max_value * graph_unit_angle) % 360
+    local graph_end_angle = math.min(max_value * graph_unit_angle, 360)
 
     -- background ring
-    cairo_arc(display, x, y, graph_radius, angle_to_position(graph_start_angle, 0), angle_to_position(graph_start_angle, graph_end_angle))
-    cairo_set_source_rgba(display, rgb_to_r_g_b(graph_bg_colour, graph_bg_alpha))
-    cairo_set_line_width(display, graph_thickness)
+    if data['graph_unit_thickness'] == nil or data['graph_unit_thickness'] == data['graph_unit_angle'] then
+       cairo_arc(display, x, y, graph_radius, angle_to_position(graph_start_angle, 0), angle_to_position(graph_start_angle, graph_end_angle))
+       cairo_set_source_rgba(display, rgb_to_r_g_b(graph_bg_colour, graph_bg_alpha))
+       cairo_set_line_width(display, graph_thickness)
 
---    if only this were true
---    extents=cairo_extents_t:create()
---    cairo_stroke_extents(display, extents)
---    data['extent_x1'], data['extent_y1'] = extents.x1, extents.y1
---    data['extent_x2'], data['extent_y2'] = extents.x2, extents.y2
-    cairo_stroke(display)
-    
---    data['extent_x'] = math.abs(math.cos(angle_to_position(graph_start_angle, 0)) * graph_radius -
---                        math.cos(angle_to_position(graph_start_angle, graph_end_angle)) * graph_radius)
---    data['extent_y'] = math.abs(math.sin(angle_to_position(graph_start_angle, 0)) * graph_radius -
---                        math.sin(angle_to_position(graph_start_angle, graph_end_angle)) * graph_radius)
+       --    if only this were true
+       --    extents=cairo_extents_t:create()
+       --    cairo_stroke_extents(display, extents)
+       --    data['extent_x1'], data['extent_y1'] = extents.x1, extents.y1
+       --    data['extent_x2'], data['extent_y2'] = extents.x2, extents.y2
+       cairo_stroke(display)
+       
+       --    data['extent_x'] = math.abs(math.cos(angle_to_position(graph_start_angle, 0)) * graph_radius -
+       --                        math.cos(angle_to_position(graph_start_angle, graph_end_angle)) * graph_radius)
+       --    data['extent_y'] = math.abs(math.sin(angle_to_position(graph_start_angle, 0)) * graph_radius -
+       --                        math.sin(angle_to_position(graph_start_angle, graph_end_angle)) * graph_radius)
+    else
+       cairo_set_line_width(display, graph_thickness)
+       local val = max_value
+       local start_arc = 0
+       local stop_arc = 0
+       local i = 1
+       while i <= val do
+          start_arc = (graph_unit_angle * i) - graph_unit_thickness
+          stop_arc = (graph_unit_angle * i)
+          cairo_arc(display, x, y, graph_radius, angle_to_position(graph_start_angle, start_arc), angle_to_position(graph_start_angle, stop_arc))
+          cairo_set_source_rgba(display, rgb_to_r_g_b(graph_bg_colour, graph_bg_alpha))
+          cairo_stroke(display)
+          i = i + 1
+       end
+    end
 
     -- arc of value
-    local val = value % (max_value + 1)
+    local val = math.min(value, max_value)
     local start_arc = 0
     local stop_arc = 0
     local i = 1
