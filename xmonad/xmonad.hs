@@ -243,7 +243,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_l ), spawn "xscreensaver-command -lock || xautolock -locknow")
     , ((mod1Mask .|. controlMask, xK_l ), spawn "xscreensaver-command -lock || xautolock -locknow")
     , ((mod1Mask .|. controlMask, xK_s ), spawn "(xscreensaver-command -lock || xautolock -locknow); sudo /usr/sbin/pm-suspend")
-    , ((modm .|. mod1Mask,        xK_l ), spawn "alock -auth pam")
+    , ((modm .|. mod1Mask,        xK_l ), spawn "alock -auth pam -cursor glyph:name=circle,fg=black,bg=white")
 
     , ((modm              , xK_c     ), raiseMaybe (spawn "kcalc") (className =? "Kcalc"))
 
@@ -367,36 +367,39 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- restarting (with 'mod-q') to reset your layout state to the new
 -- defaults, as xmonad preserves your old layout settings by default.
 --
-defaultLayout = avoidStruts $ renamed [CutWordsLeft 4] $ leftside $ reflectHoriz $ rightside $ reflectHoriz $ (tiled ||| tiled3 ||| mir ||| maxim) ||| noBorders  Full
-  where
-    -- default tiling algorithm partitions the screen into two panes
-    tiled   = renamed [Replace "Tall"] $ spacing 6 $ ResizableTall nmaster delta ratio []
-    tiled3  = renamed [Replace "3 Tall"] $ spacing 6 $ ThreeCol nmaster delta ratio3
-    mir = renamed [Replace "Wide"] $ Mirror tiled 
-    maxim = renamed [Replace "Max"] $ Full
- 
-    -- The default number of windows in the master pane
-    nmaster = 1
- 
-    -- Default proportion of screen occupied by master pane
-    ratio   = 6/10
-    ratio3  = 4/10
- 
-    -- Percent of screen to increment by when resizing panes
-    delta   = 3/100
+myLayout = onWorkspace "7" (gimpLayout ||| defaultLayouts)
+    $ defaultLayouts
+    where
+        defaultLayouts = tiled ||| tiled3 ||| wide ||| maxim ||| noBorders Full
 
-    leftside = withIM (1/10) leftmatch
-    leftmatch = (Title "Speedbar 1.0")
+        -- define the layouts with their modifiers
+        tiled      = renamed [Replace "Tall"]   $ defmods $ addsides $ ResizableTall nmaster delta ratio []
+        tiled3     = renamed [Replace "3 Tall"] $ defmods $ addsides $ ThreeCol nmaster delta ratio3
+        wide       = renamed [Replace "Wide"]   $ defmods $ addsides $ Mirror tiled 
+        maxim      = renamed [Replace "Max"]    $ defmods $ addsides $ Full
+        full       =                                                   noBorders Full
+        gimpLayout = renamed [Replace "Gimp"]   $ defmods $ addsides $ (withIM (1/10) (Role "gimp-toolbox")
+                     $ reflectHoriz
+                     $ withIM (1/6) (Role "gimp-dock") Full)
 
-    rightside = withIM (1/10) rightmatch
-    rightmatch = Or (Resource "xclock") $ Or (Role "buddy_list") $ (Title "dzlauncher")
+        -- The default number of windows in the master pane
+        nmaster = 1
+        -- Default proportion of screen occupied by master pane
+        ratio   = 6/10
+        ratio3  = 4/10
+        -- Percent of screen to increment by when resizing panes
+        delta   = 3/100
 
-gimpLayout     = avoidStruts
-                    (withIM (1/10) (Role "gimp-toolbox")
-                  $ reflectHoriz
-                  $ withIM (1/6) (Role "gimp-dock") Full)
+        -- standard modifiers
+        defmods l = avoidStruts $ spacing 6 l
 
-myLayout = onWorkspace "7" gimpLayout $ defaultLayout
+        -- side pannels
+        addsides l  =  leftside $ reflectHoriz $ rightside $ reflectHoriz l
+
+        leftside = withIM (1/10) leftmatch
+        leftmatch = (Title "Speedbar 1.0")
+        rightside = withIM (1/10) rightmatch
+        rightmatch = Or (Resource "xclock") $ Or (Role "buddy_list") $ (Title "dzlauncher")
 
 ------------------------------------------------------------------------
 -- Window rules:
@@ -579,7 +582,7 @@ myUrgencyHook = withUrgencyHookC uH uC
 -- Run xmonad with the settings you specify. No need to modify this.
 --
 main = do
-  hlogpipe <- spawnPipe "cat >~/.xmonad/dynlogpipe"; let ?hlogpipe = hlogpipe
+  hlogpipe <- spawnPipe "while true; do read logstr; [ $? -gt 0 ] && exit; [ ${#logstr} -gt 2 ] && echo $logstr > ~/.xmonad/dynlogpipe; done"; let ?hlogpipe = hlogpipe
   xmonad $ ewmh $ myUrgencyHook $ withNavigation2DConfig defaultNavigation2DConfig {defaultTiledNavigation = centerNavigation } $ defaults
  
 -- A structure containing your configuration settings, overriding
