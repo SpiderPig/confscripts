@@ -14,7 +14,7 @@ color_txt2=0x7f757b
 color_txt3=0x5f656b
 color_txt_urgent=0x00ffff
 
-color_graph1=0x63a5b3
+color_graph1=0x6395b3
 color_graph2=0xadadad
 
 color_alert=0xFF0000
@@ -648,7 +648,7 @@ layout2 = {
 
 wifi = {
     type="gauge",
-    arg='',                      max_value=7,
+    arg='',                      max_value=7,                   value_unit=14.2,
     rate=4,
     x=1080,                         y=32,
     graph_radius=22,
@@ -669,7 +669,7 @@ wifi = {
     caption_weight=1,                caption_size=10.0,
     caption_fg_colour=color_txt1,    caption_fg_alpha=0.5,
     caption_x=20,                   caption_y=-3,
-    alert_low=10,
+    alert_low=2,
     alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
     tick = function(data)
               -- set wifi values and dynamic visuals
@@ -684,11 +684,11 @@ wifi = {
               start, finish, NlinkNum  = string.find (wifi, "|(%d*)", finish)
               start, finish, NlinkDen  = string.find (wifi, "/(.*)|", finish)
               if NlinkNum ~= nil and NlinkDen ~= nil then
-                 Nlink = 7 * tonumber(NlinkNum) / tonumber(NlinkDen)
+                 Nlink = 100 * tonumber(NlinkNum) / tonumber(NlinkDen)
               else
                  Nlink = 0
               end
-              --        print ("wifi "..Niface.."/"..Nessid.."/"..Nap.."/"..Npow.."/"..Nlink)
+--                      print ("wifi "..Niface.."/"..Nessid.."/"..Nap.."/"..Npow.."/"..Nlink)
 
               data.hideeval         = nil
               if Niface == nil or string.len(Niface) < 1 then
@@ -710,7 +710,7 @@ wifi = {
                  data.caption_fg_colour= color_txt1
                  data.graph_fg_colour  = color_graph1
                  data.graph_bg_colour  = color_graph1
-                 data.alert_low        = 10
+                 data.alert_low        = 2
               end
               data.txt_fg_colour    = data.graph_fg_colour
               data.value            = Nlink
@@ -903,7 +903,7 @@ iptssh = {
     x=0,                           y=-1,       relativeto='iptssh', 
     value='XX',
 -- perl -pe 's/src=([0-9.]*).*last_seen: (\d*).*oldest_pkt: (\d*).*/\1/; if($3 < 4){$_="";} else {$_=`geoiplookup $_`;  if(! s/.*Country Edition: (.*),.*/\1\n/s ){$_="";}} ' /proc/net/xt_recent/SSH
-    cmd='perl -pe \'s/src=(\[0-9.\]*).*last_seen: (\\d*).*oldest_pkt: (\\d*).*/\\1/; if($3 < 4){$_=\"\";} else {$_=`geoiplookup $_`;  if(! s/.*Country Edition: (.*),.*/\\1\\n/s ){$_=\"\";}} \' /proc/net/xt_recent/SSH 2>/dev/null',
+   cmd='perl -pe \'s/src=(\[0-9.\]*).*last_seen: (\\d*).*oldest_pkt: (\\d*).*/\\1/; if($3 < 4){$_=\"\";} else {$_=`geoiplookup $_`;  if(! s/.*Country Edition: ([^,]*),.*/\\1\\n/s ){$_=\"\";}} \' /proc/net/xt_recent/SSH 2>/dev/null',
     rate=5,
     prefix='',                     suffix='',
     text_fg_colour=color_txt1,     text_fg_alpha=0.7,
@@ -914,7 +914,19 @@ iptssh = {
     slant=CAIRO_FONT_SLANT_NORMAL,
     face=CAIRO_FONT_WEIGHT_BOLD,
 },
-
+--{
+--    type="text",
+--    name='desktop_name',        arg='',
+--    x=2540,                        y=16,
+--    prefix='DTN:',                 suffix='',
+--    text_fg_colour=color_txt1,     text_fg_alpha=1,
+--    prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
+--    suffix_fg_colour=color_txt3,   suffix_fg_alpha=1,
+--    font=font,
+--    size=12,
+--    slant=CAIRO_FONT_SLANT_NORMAL,
+--    face=CAIRO_FONT_WEIGHT_BOLD,
+--},
 -- {
 --     type="text",
 --     value='DISKS',
@@ -1380,7 +1392,7 @@ function conky_main()
            start, finish, vis = string.find (dynlog, "%s(.*):", finish)
            start, finish, lay = string.find (dynlog, ":%s(.*)\n", finish)
            local dt_name=conky_parse('${desktop_name}')
-
+--           print (dt_name)
            for i in pairs(desktops) do
               if dt_name == desktops[i].workspace then
                  desktops[i].layout = lay
