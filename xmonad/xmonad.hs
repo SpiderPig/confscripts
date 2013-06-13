@@ -169,8 +169,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
     
     , ((modm,               xK_a ), sendMessage $ JumpToLayout "Tall")
-    , ((modm .|. shiftMask, xK_a ), sendMessage $ JumpToLayout "3 Tall")
+    , ((modm .|. shiftMask, xK_a ), sendMessage $ JumpToLayout "Left")
     , ((modm,               xK_s ), sendMessage $ JumpToLayout "Wide")
+    , ((modm .|. shiftMask, xK_s ), sendMessage $ JumpToLayout "3 Tall")
     , ((modm,               xK_f ), sendMessage $ JumpToLayout "Full")
     , ((modm .|. shiftMask, xK_f ), sendMessage $ JumpToLayout "Max")
  
@@ -368,19 +369,28 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- defaults, as xmonad preserves your old layout settings by default.
 --
 myLayout = onWorkspace "7" (gimpLayout ||| defaultLayouts)
+    $ onWorkspace "5" jsafLayout
     $ defaultLayouts
     where
-        defaultLayouts = tiled ||| tiled3 ||| wide ||| maxim ||| noBorders Full
+        defaultLayouts = tiled ||| lft_tiled ||| tiled3 ||| wide ||| maxim ||| full
 
-        -- define the layouts with their modifiers
-        tiled      = renamed [Replace "Tall"]   $ defmods $ addsides $ ResizableTall nmaster delta ratio []
-        tiled3     = renamed [Replace "3 Tall"] $ defmods $ addsides $ ThreeCol nmaster delta ratio3
-        wide       = renamed [Replace "Wide"]   $ defmods $ addsides $ Mirror tiled 
-        maxim      = renamed [Replace "Max"]    $ defmods $ addsides $ Full
-        full       =                                                   noBorders Full
         gimpLayout = renamed [Replace "Gimp"]   $ defmods $ addsides $ (withIM (1/10) (Role "gimp-toolbox")
                      $ reflectHoriz
                      $ withIM (1/6) (Role "gimp-dock") Full)
+
+        jsafLayout = renamed [Replace "jsaf"]   $ avoidStruts $ spacing 2 $ addJSAFsides $ (base_tiled ||| Mirror base_tiled)
+
+        -- define the layouts with their modifiers
+        tiled      = renamed [Replace "Tall"]   $ defmods $ addsides $ base_tiled
+        tiled3     = renamed [Replace "3 Tall"] $ defmods $ addsides $ ThreeCol nmaster delta ratio3
+        lft_tiled  = renamed [Replace "Left"]   $ defmods $ addsides $ reflectHoriz $ ResizableTall nmaster delta ratio []
+        wide       = renamed [Replace "Wide"]   $ defmods $ addsides $ Mirror base_tiled 
+        maxim      = renamed [Replace "Max"]    $ defmods $ addsides $ Full
+        full       =                                                   noBorders Full
+
+        -- base layouts to be modified above
+        base_tiled = ResizableTall nmaster delta ratio []
+
 
         -- The default number of windows in the master pane
         nmaster = 1
@@ -393,13 +403,21 @@ myLayout = onWorkspace "7" (gimpLayout ||| defaultLayouts)
         -- standard modifiers
         defmods l = avoidStruts $ spacing 6 l
 
-        -- side pannels
-        addsides l  =  leftside $ reflectHoriz $ rightside $ reflectHoriz l
+        -- standard side pannels
+        addsides l = leftside $ reflectHoriz $ rightside $ reflectHoriz l
 
         leftside = withIM (1/10) leftmatch
         leftmatch = (Title "Speedbar 1.0")
         rightside = withIM (1/10) rightmatch
         rightmatch = Or (Resource "xclock") $ Or (Role "buddy_list") $ (Title "dzlauncher")
+
+        -- jsaf side pannels
+        addJSAFsides l = Mirror $ topJSAFside $ Mirror $ reflectHoriz $ rightJSAFside $ reflectHoriz l
+
+        topJSAFside = withIM (3/100) topJSAFmatch
+        topJSAFmatch = (Title "tools")
+        rightJSAFside = withIM (2/30) rightJSAFmatch
+        rightJSAFmatch = (Title "infobox")
 
 ------------------------------------------------------------------------
 -- Window rules:
@@ -472,7 +490,7 @@ myManageHook = composeAll . concat $
     myRFloats = ["kcalc"]
     myIgnores = ["desktop_window", "kdesktop", "cairo-dock"]
     myRlNoFloats = ["gimp-image-window", "gimp-dock", "gimp-toolbox"]
-    myNoFloats = ["dreamchess", "pouetChess"]
+    myNoFloats = ["dreamchess", "pouetChess", "JSAF Editor", "tools", "infobox"]
     my1Shifts = []
     my2Shifts = []
     my3Shifts = []
@@ -481,11 +499,11 @@ myManageHook = composeAll . concat $
     my6Shifts = ["Tci"]
     my7Shifts = ["Gimp"]
     my8Shifts = []
-    my9Shifts = ["VirtualBox", "Wine"]
-    myAvoidMasters = ["konsole", "xchat", "urxvt", "screen", "Speedbar 1.0", "Ediff"]
+    my9Shifts = ["VirtualBox"]
+    myAvoidMasters = ["konsole", "xchat", "urxvt", "screen", "Speedbar 1.0", "Ediff", "editorShell", "JSAF Editor"]
     myCopyAlls = ["gcompris", "xclock"]
 --    myTrans = ["xclock", "Firefox", "Kate", "Okular", "Google-chrome"]
-    myOpaque = ["Audacious", "kcalc", "vlc", "mplayer", "Plugin-container", "URxvt", "screen", "status bar", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Xsane", "Gwenview", "Vncviewer"]
+    myOpaque = ["Audacious", "kcalc", "vlc", "Netflix - Mozilla Firefox", "mplayer", "Plugin-container", "URxvt", "screen", "status bar", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Xsane", "Gwenview", "Vncviewer"]
 
 clock = monitor {
   -- Cairo-clock creates 2 windows with the same classname, thus also using title
