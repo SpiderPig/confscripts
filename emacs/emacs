@@ -144,7 +144,7 @@
 (global-set-key [M-down] 'windmove-down)
 
 (global-set-key [S-mouse-2] 'browse-url-at-mouse)
-(global-set-key (kbd "C-x C-b") 'buffer-menu)
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 (global-set-key [f11] 'menu-bar-mode)
 (global-set-key [f12] 'speedbar)

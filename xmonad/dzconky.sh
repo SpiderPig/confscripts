@@ -2,13 +2,18 @@
 
 #Layout
 BAR_H=8
-PIE_H=14
+PIE_H=32
 BIGBAR_W=60
 SMABAR_W=30
 HEIGHT=18
 
 X_POS=0
 Y_POS=0
+
+#TEST_MODE="on"
+if [[ -n $TEST_MODE ]]; then
+  HEIGHT=32
+fi
 
 #NUM_SCRNS=$(xdpyinfo |grep 'number of screens'|awk '{print $4}')
 XRES=$(xdpyinfo |grep 'dimensions:'|perl -pe 's/\s*\S*\s*(\d*)x.*/\1/')
@@ -31,7 +36,7 @@ DZEN_FG="#adadad"
 DZEN_FG2="#7f757b"
 
 DZEN_BG="#000000"
-DZEN_OUTLINE="#606060" # "#63a5b3"
+DZEN_OUTLINE="#808080" # "#63a5b3"
 COLOR_ICON="#adadad"
 ICONPATH="$HOME/.icons/dzen-xbm"
 #COLOR_SEP="#007b8c"
@@ -85,9 +90,27 @@ printCPUInfo() {
 	echo -n "^fg($COLOR_ICON)^i($ICONPATH/cpu.xbm) "
 	echo -n "$(echo $CPULoad0 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W  -ss 1 -sw 2 -nonl) "
 	echo -n "$(echo $CPULoad1 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W  -ss 1 -sw 2 -nonl) "
-        echo -n "$(echo $CPULoad2 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W  -ss 1 -sw 2 -nonl) "
-        echo -n "$(echo $CPULoad3 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W  -ss 1 -sw 2 -nonl) "
+	echo -n "$(echo $CPULoad2 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W  -ss 1 -sw 2 -nonl) "
+	echo -n "$(echo $CPULoad3 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W  -ss 1 -sw 2 -nonl) "
 	echo -n "${CPUFreq}GHz"
+
+if [[ -n $TEST_MODE ]]; then
+	echo $CPULoad0 | gdbar -fg $BAR_FG -bg $BAR_BG -h 32 -w 32 -s p -nonl
+#	 echo -ne "^p(-32)^fg(#0f3a43)^co(32)"
+	echo -ne "^p(-30)"
+	echo $CPULoad1 | gdbar -fg $BAR_FG -bg $BAR_BG -h 28 -w 28 -s p -nonl
+#	 echo -ne "^p(-28)^fg(#0f3a43)^co(28)"
+	echo -ne "^p(-26)"
+	echo $CPULoad2 | gdbar -fg $BAR_FG -bg $BAR_BG -h 24 -w 24 -s p -nonl
+#	 echo -ne "^p(-24)^fg(#0f3a43)^co(24)"
+	echo -ne "^p(-22)"
+	echo $CPULoad3 | gdbar -fg $BAR_FG -bg $BAR_BG -h 20 -w 20 -s p -nonl
+#	 echo -ne "^p(-20)^fg(#0f3a43)^co(20)"
+	echo -ne "^p(-18)"
+	echo -ne "^fg($DZEN_BG)^c(16)^p(-16)"
+	echo -ne "^fg($BAR_BG)^co(16)^p(8)"
+	echo -n "^fg()"
+fi
 	return
 }
 
@@ -170,7 +193,7 @@ printDiskInfo() {
 #	    RBAR=$(echo $RFSP | gdbar -fg $CRIT -bg \#202020 -h $PIE_H -w $PIE_H -s p -nonl)
 	    RFSP="^fg($CRIT)"$RFSP"^fg()"
 #        else
-#	    RBAR=$(echo $RFSP | gdbar -fg $BAR_FG -bg $BAR_BG -h $PIE_H -w $PIE_H -s p -nonl)
+#          RBAR=$(echo $RFSP | gdbar -fg $BAR_FG -bg $BAR_BG -h $PIE_H -w $PIE_H -s p -nonl)
 	fi
 	if [[ $HFSP -gt 70 ]]; then
 #	    HBAR=$(echo $HFSP | gdbar -fg $CRIT -bg \#202020 -h $PIE_H -w $PIE_H -s p -nonl)
@@ -184,6 +207,16 @@ printDiskInfo() {
     if [[ $(mountpoint /home|grep not|wc|awk '{print $1}') -lt 1 ]];then
     	echo -n "  ^fg($DZEN_FG2)home ^fg()${HBAR}^fg()${HFSP}%"
     fi
+
+if [[ -n $TEST_MODE ]]; then
+	echo $RFSP | gdbar -fg $BAR_FG -bg \#000000 -h 32 -w 32 -s p -nonl
+	echo -ne "^p(-32)"
+	echo -ne "^fg($BAR_BG)^co(${PIE_H})^p(-32)"
+	echo -ne "^p(3)"
+	echo -ne "^fg($DZEN_BG)^c(26)^p(-26)"
+	echo -ne "^fg($BAR_BG)^co(26)"
+#        echo -ne "^p(-26)root"
+fi
 }
 
 printAlarm() {
@@ -231,12 +264,12 @@ printNetwork() {
 #	    echo -n "^fg($COLOR_ICON)^i($ICONPATH/net-wifi.xbm) "
             if [[ -z $Npow || $Npow == "off" ]]; then
                 echo -n "^fg(#404040)$Niface "
-                WFI_FG="#404040"
-                WFI_BG="#202020"
+                WFI_FG="#a0a0a0"
+                WFI_BG="#404040"
             elif [[ $Nap == "Not-Associated" ]]; then
                 echo -n "^fg($DZEN_FG2)$Niface "
-                WFI_FG="#404040"
-                WFI_BG="#202020"
+                WFI_FG="#a0a0a0"
+                WFI_BG="#404040"
             else
                 echo -n "^fg($DZEN_FG2)$Nessid "
                 WFI_FG=$BAR_FG

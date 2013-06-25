@@ -467,6 +467,7 @@ myManageHook = composeAll . concat $
     , [(className =? x <||> title =? x <||> resource =? x) --> doAvoidMaster | x <- myAvoidMasters]
     , [fmap ("Joint BUS (JBUS)" `isPrefixOf`) title --> doShift "4"]
     , [fmap ("Joint BUS (JBUS)" `isPrefixOf`) title --> doTransparent 0xFF000000]
+    , [fmap ("Device(babycam)" `isPrefixOf`) title --> doTransparent 0xFF000000]
 --    , isFullscreen              --> (doF W.focusDown <+> doFullFloat) -- fix flash fullscreen
 --     , [className =? c --> doF focusDown | c <- noStealFocusWins]
 --    , [resource =? "xclock" --> doTransparent 0.8]

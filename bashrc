@@ -23,6 +23,7 @@ export SDL_VIDEO_ALLOW_SCREENSAVER=1
 
 alias dropcache='su -c "echo 3 >/proc/sys/vm/drop_caches"'
 alias histback=" history -d $((HISTCMD-1))"
+alias nohist='unset HISTFILE'
 alias lefthand="xmodmap -e \"pointer = 3 2 1\""
 alias righthand="xmodmap -e \"pointer = default\""
 alias svn='colorsvn'
@@ -142,7 +143,7 @@ _precmd()
         local last_pipe_cmd=`echo $preexec_startcmd |sed 's/.*|//'`
         local last_pipe_prog="${last_pipe_cmd%% *}"
 
-        if [[ $deltat -gt 600 ]]; then
+        if [[ $deltat -gt 120 ]]; then
             case $last_pipe_prog in
                 gdb) ;;
                 man) ;;

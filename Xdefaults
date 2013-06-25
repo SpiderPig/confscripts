@@ -1,0 +1,221 @@
+! xscreensaver ---------------------------------------------------------------
+
+!font settings
+xscreensaver.Dialog.headingFont:        -*-terminus-bold-r-*-12-*-*-*-*-*-*-*
+xscreensaver.Dialog.bodyFont:           -*-terminus-medium-r-normal-*-12-*-*-*-*-*-*-*
+xscreensaver.Dialog.labelFont:          -*-terminus-medium-r-normal-*-12-*-*-*-*-*-*-*
+xscreensaver.Dialog.unameFont:          -*-terminus-medium-r-normal-*-24-*-*-*-*-*-*-*
+xscreensaver.Dialog.buttonFont:         -*-terminus-bold-r-*-12-*-*-*-*-*-*-*
+xscreensaver.Dialog.dateFont:           -*-terminus-medium-r-normal-*-12-*-*-*-*-*-*-*
+xscreensaver.passwd.passwdFont:         -*-terminus-bold-r-*-12-*-*-*-*-*-*-*
+!general dialog box (affects main hostname, username, password text)
+
+xscreensaver.Dialog.foreground:         #ffffff
+xscreensaver.Dialog.background:         #000000
+xscreensaver.Dialog.topShadowColor:     #000000
+xscreensaver.Dialog.bottomShadowColor:  #000000
+xscreensaver.Dialog.Button.foreground:  #666666
+xscreensaver.Dialog.Button.background:  #ffffff
+!username/password input box and date text colour
+xscreensaver.Dialog.text.foreground:    #666666
+xscreensaver.Dialog.text.background:    #ffffff
+xscreensaver.Dialog.internalBorderWidth:24
+xscreensaver.Dialog.borderWidth:        0
+xscreensaver.Dialog.shadowThickness:    2
+!timeout bar (background is actually determined by Dialog.text.background)
+xscreensaver.passwd.thermometer.foreground:  #666666
+xscreensaver.passwd.thermometer.background:  #000000
+xscreensaver.passwd.thermometer.width:       8
+
+
+
+URxvt*urgentOnBell: true
+URxvt*visualBell:   true
+! URxvt*bellCommand: '/usr/bin/notify-send "Ding Ding Ding"'
+
+URxvt*scrollBar: false
+URxvt*borderLess: false
+!URxvt*saveLines: 8000
+
+!  teh transparency stuff
+!URxvt*inheritPixmap: true
+!URxvt*shading: 45
+!URxvt*antialias:    true
+! URxvt*tintColor: white
+! these are for real transparency
+URxvt*depth: 32
+URxvt*buffered: true
+
+! URxvt*font: xft:terminus:pixelsize=14
+URxvt*font: xft:Monospace:size=9
+! URxvt*font: xft:montecarlo:pixelsize=11
+URxvt*letterSpace: -1
+
+URxvt.perl-ext-common: default,matcher
+URxvt.url-launcher: firefox
+URxvt.matcher.button: 2
+!URxvt.matcher.pattern.1: \\bwww\\.[\\w-]\\.[\\w./?&@#-]*[\\w/-]
+!URxvt.matcher.launcher.1: firefox
+!URxvt.matcher.pattern.1: \\b[\\w-.]*\\.(c|h|cc|cpp|hh|txt|log|sh|pl)\\b
+!URxvt.matcher.launcher.1: emacsclient $0
+!URxvt.matcher.launcher.1: xmessage $0
+!nURxvt.matcher.pattern.2: \\b[\\w-.]*\\.(avi|gif|jpg|jpeg|mpg|mp4|png|pdf)
+!URxvt.matcher.launcher.2: xdg-open $0
+
+! change default colors
+! URxvt*background: #2C2C2C
+! URxvt*background: rgba:0000/0000/0000/9000
+URxvt.background: [70]#000000
+URxvt*foreground: #DCDCCC
+! dark pastels
+!URxvt*color0: #3F3F3F
+!URxvt*color1: #705050
+!URxvt*color2: #60B48A
+!URxvt*color3: #DFAF8F
+!URxvt*color4: #9AB8D7
+!URxvt*color5: #A800A8
+!URxvt*color6: #8CD0D3
+!URxvt*color7: #DCDCCC
+!URxvt*color8: #709080
+!URxvt*color9: #DCA3A3
+!URxvt*color10: #72D5A3
+!URxvt*color11: #F0DFAF
+!URxvt*color12: #94BFF3
+!URxvt*color13: #EC93D3
+!URxvt*color14: #93E0E3
+!URxvt*color15: #FFFFFF
+
+!!dark blues
+!!black
+*color0: #333333
+*color8: #3D3D3D
+!!red
+!*color1: #8C4665
+!*color9: #BF4D80
+!!green
+!*color2: #287373
+!*color10: #53A6A6
+!!yellow
+!*color3: #7C7C99
+!*color11: #9E9ECB
+!!blue
+!*color4: #395573
+!*color12: #477AB3
+!!magenta
+!*color5: #5E468C
+!*color13: #7E62B3
+!!cyan
+!*color6: #31658C
+!*color14: #6096BF
+!!white
+!*color7: #899CA1
+!*color15: #C0C0C0
+
+!!dark blues and violetes more contrast
+!!black
+!*color0:  #191919
+!*color8:  #191919
+!!red
+!*color1:               #A30EFF
+!*color9:               #520085
+!!green
+!*color2:               #34D4CC
+!*color10:              #12B2B8
+!!yellow
+!*color3:               #9B54C3
+!*color11:              #643C7B
+!!blue 
+!*color4:               #0099CC
+!*color12:              #006699
+!!magenta
+!*color5:               #49386E
+!*color13:              #774AD8
+!!cyan
+!*color6:               #167290
+!*color14:              #1C4A59
+!!white
+!*color7:               #a0a0a0
+!*color15:              #a0a0a0
+
+
+!! low contrast
+!!Black
+!URxvt*color0:           #3d3e3d
+!URxvt*color8:           #5a5b5c
+!!Red
+!URxvt*color1:           #755a5b
+!URxvt*color9:           #a37679
+!!Green
+!URxvt*color2:           #68755a
+!URxvt*color10:          #87a376
+!!Yellow
+!URxvt*color3:           #756e5a
+!URxvt*color11:          #a39b76
+!!Blue
+!URxvt*color4:           #5b6976
+!URxvt*color12:          #758ba3
+!!Magenta
+!URxvt*color5:           #755b76
+!URxvt*color13:          #9f76a3
+!!Cyan
+!URxvt*color6:           #5b7674
+!URxvt*color14:          #75a3a1
+!!White
+!URxvt*color7:           #808080
+!URxvt*color15:          #aeafb0
+
+
+!! dark tones
+!!Black
+!urxvt*color0:            #212121
+!urxvt*color8:            #5D5F5E
+!!Red
+!urxvt*color1:            #490A05
+!urxvt*color9:            #8C1312
+!!Green
+!urxvt*color2:            #054949
+!urxvt*color10:           #076969
+!!Yellow
+!urxvt*color3:            #8B751F
+!urxvt*color11:           #A3A617
+!!Blue
+!urxvt*color4:            #242447
+!urxvt*color12:           #3720B3
+!!Magenta
+!urxvt*color5:            #450549
+!urxvt*color13:           #721374
+!!Cyan
+!urxvt*color6:            #09728D
+!urxvt*color14:           #108FBF
+!!White
+!urxvt*color7:            #92A183
+!urxvt*color15:           #B8D29D
+
+
+!Visiblue
+!*color0:               #333366
+!*color8:               #333399
+
+*color1:               #6666CC
+*color9:               #9999FF
+
+*color2:               #0099CC
+*color10:              #00CCFF
+
+*color3:               #3366CC
+*color11:              #6699FF
+
+*color4:               #006699
+*color12:              #0099CC
+
+*color5:               #0066FF
+*color13:              #0099FF
+
+*color6:               #669999
+*color14:              #66CCCC
+
+*color7:               #99CCCC
+*color15:              #CCFFFF
+
+
+Xft.dpi: 96
