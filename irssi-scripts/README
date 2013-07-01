@@ -1,3 +1,5 @@
 Irssi scripts
 
-recentdepart.pl is an irssi script to add a smart filtering feature.  Filters quits/parts/nicks/joins based on recent activity to only show these messages for users who have been active recently.  It greatly cuts down on the noise in busy channels.
+recentdepart.pl - Smart Filter for Irssi
+
+irssi script to add a smart filtering feature.  Filters quits/parts/nicks/joins based on recent activity to only show these messages for users who have been active recently.  It greatly cuts down on the noise in busy channels.
