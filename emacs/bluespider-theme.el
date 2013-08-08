@@ -18,7 +18,7 @@
    `(lazy-highlight ((,class (:background "gray25"))))
    ;; Font lock faces
    `(font-lock-builtin-face ((,class (:foreground "pale green"))))
-   `(font-lock-comment-face ((,class (:foreground "dark cyan" :italic t))))
+   `(font-lock-comment-face ((,class (:foreground "#6095AF" :italic t))))
 ;   `(font-lock-comment-delimiter-face ((,class (:foreground ,"blue"))))
    `(font-lock-constant-face ((,class (:foreground "turquoise"))))
    `(font-lock-doc-string-face ((,class (:foreground "#3041c4"))))
@@ -28,7 +28,7 @@
    `(font-lock-keyword-face ((,class (:foreground "SteelBlue"))))
    `(font-lock-negation-char-face ((,class (:foreground ,"cyan"))))
    `(font-lock-preprocessor-face ((,class (:foreground "#e3ea94"))))
-   `(font-lock-string-face ((,class (:foreground "cyan"))))
+   `(font-lock-string-face ((,class (:foreground "#AFE5FF"))))
    `(font-lock-type-face ((,class (:foreground "aquamarine"))))
    `(font-lock-variable-name-face ((,class (:foreground "deep sky blue"))))
    `(font-lock-warning-face ((,class (:foreground "salmon1" :bold t))))
@@ -69,22 +69,21 @@
    `(ediff-fine-diff-B ((,class (:background "green" :foreground "black"))))
 
 ;; Flyspell
-    `(flyspell-duplicate           ((,class (:underline ,"orange"))))
-    `(flyspell-incorrect           ((,class (:underline , "salmon1"))))
+    `(flyspell-duplicate           ((,class (:underline t :foreground "orange"))))
+    `(flyspell-incorrect           ((,class (:underline t :foreground "salmon1"))))
 
     `(dired-boring ((,class (nil))))
-    `(dired-directory ((,class (:foreground "dark cyan"))))
+    `(dired-directory ((,class (:foreground "#6095AF"))))
     `(dired-executable ((,class (:foreground "deep sky blue"))))
-    `(dired-flagged ((,class (nil))))
+    `(dired-flagged ((,class (:foreground "orange"))))
     `(dired-header ((,class (:foreground "gray20"))))
     `(dired-marked ((,class (:foreground "#e3ea94"))))
     `(dired-permissions ((,class (:foreground "gray20"))))
+    `(dired-perm-write ((,class (:foreground "deep sky blue"))))
     `(dired-setuid ((,class (nil))))
     `(dired-socket ((,class (nil))))
     `(dired-symlink ((,class (:foreground "yellow green"))))
 ;; dired-ignored                                 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
-;; dired-mark                                    abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
-;; dired-perm-write                              abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
 ;; dired-warning                                 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 
 
  ;;; grep
