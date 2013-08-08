@@ -24,6 +24,7 @@
  '(even-window-heights nil)
  '(gdb-create-source-file-list nil)
  '(global-auto-revert-mode t)
+ '(ibuffer-expert t)
  '(indent-tabs-mode nil)
  '(indicate-empty-lines t)
  '(kill-whole-line t)
@@ -34,6 +35,7 @@
  '(scroll-conservatively 100000)
  '(scroll-margin 10)
  '(scroll-preserve-screen-position 1)
+ '(semanticdb-default-save-directory "~/tmp/semanticdb")
  '(server-mode t)
  '(server-raise-frame nil)
  '(show-paren-mode t)
@@ -130,6 +132,56 @@
 (add-hook 'text-mode-hook 'maybe-gitcommit-set-hook)
 (add-to-list 'auto-mode-alist '("COMMIT_EDITMSG" . text-mode))
 
+
+;; get cedet http://cedet.sourceforge.net/setup.shtml
+;; snapshot from here http://www.randomsample.de/cedet-snapshots/
+;; configuration guide http://alexott.net/en/writings/emacs-devenv/EmacsCedet.html
+(require 'semantic)
+(require 'semantic/ia)
+(require 'semantic/bovine/gcc)
+
+(semantic-add-system-include "/usr/src/debug/openmotif-2.3.2/lib/Xm/" 'c-mode)
+
+ 
+;; (require 'semantic/db-cscope)
+;; (when (cedet-cscope-version-check t)
+;;   (semanticdb-enable-cscope-databases 'c-mode)
+;;   (semanticdb-enable-cscope-databases 'c++-mode))
+  
+(add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode) 
+(add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
+(add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
+;;(add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode)
+;;(add-to-list 'semantic-default-submodes 'global-semantic-idle-summary-mode)
+;;(add-to-list 'semantic-default-submodes 'global-cedet-m3-minor-mode) ;; only bzr version
+ 
+;;(setq semantic-idle-scheduler-working-in-modline-flag t)
+;;(setq semantic-complete-inline-analyzer-idle-displayor-class semantic-displayor-tooltip)
+(semantic-mode t)
+
+;; use the fast jump instead of the prompt  
+(add-hook 'c-mode-common-hook (lambda ()
+  (define-key semantic-mode-map (kbd "C-c , j") 'semantic-ia-fast-jump)
+))
+ 
+;; adds a tags menu item containing tag info for the current file
+(defun my-semantic-hook ()
+  (imenu-add-to-menubar "TAGS"))
+(add-hook 'semantic-init-hooks 'my-semantic-hook)
+ 
+;; use autocomplete ontop of semantic for pop-up completion lists
+(require 'auto-complete-config)
+(ac-config-default)
+(setq-default ac-sources '(ac-source-semantic))
+;; give the ac overlay a nicer look
+(set-face-background 'ac-candidate-face "#202020")
+;;(set-face-underline 'ac-candidate-face "black")
+(set-face-foreground 'ac-candidate-face "white")
+(set-face-background 'ac-selection-face "steelblue")
+
+
+
+
 ;; start speedbar if we're using a window system
 ;; (when window-system
 ;;    (speedbar t))
@@ -144,10 +196,20 @@
 (global-set-key [M-down] 'windmove-down)
 
 (global-set-key [S-mouse-2] 'browse-url-at-mouse)
-(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 (global-set-key [f11] 'menu-bar-mode)
 (global-set-key [f12] 'speedbar)
+
+
+;; ibuffer setup
+(global-set-key (kbd "C-x C-b") 'ibuffer) ;;'buffer-menu)
+(setq ibuffer-saved-filter-groups
+          (quote (("default"
+                   ("dired" (mode . dired-mode))))))
+
+(add-hook 'ibuffer-mode-hook
+              (lambda ()
+                (ibuffer-switch-to-saved-filter-groups "default")))
 
 ;; enabel cscope C-c s commands
 (require 'xcscope)
@@ -392,3 +454,10 @@ This is an internal function used by Auto-Revert Mode."
   (interactive)
   ;; Compile current buffer AND the src/JSAF dir
   (compile (concat "make -k && make -k -C " (project-root))))
+
+
+;; save my mini-buffer histories
+(setq savehist-additional-variables
+      '(search-ring regexp-search-ring command-history shell-command-history extended-command-history file-name-history)
+      savehist-file "~/.emacs.d/savehist")
+(savehist-mode t)
