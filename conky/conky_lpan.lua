@@ -14,7 +14,7 @@ color_txt2=0x7f757b
 color_txt3=0x5f656b
 color_txt_urgent=0x00ffff
 
-color_graph1=0x6395b3
+color_graph1=0x6298B3 -- 6395b3
 color_graph2=0xadadad
 
 color_alert=0xFF0000
@@ -24,6 +24,8 @@ font_slant=CAIRO_FONT_SLANT_NORMAL
 font_face=CAIRO_FONT_WEIGHT_BOLD
 
 icon_path=os.getenv('HOME').."/.icons/pannel/"
+
+net_iface='eth0'
 
 -- define the physical screen layout. 
 screens = {
@@ -834,7 +836,7 @@ btime = {
     type="text",
     name='tcp_portmon',        arg='22 23 count',
     hideeval='${if_match ${tcp_portmon 22 23 count} < 1}hide${else}show${endif}', 
-    x=620,                        y=32,         relativeto='screen2_l',
+    x=720,                        y=32,         relativeto='screen2_l',
     prefix='SSH:',                 suffix='',
     text_fg_colour=color_txt1,     text_fg_alpha = 0.7,
     prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
@@ -967,6 +969,151 @@ iptssh = {
 --     face=CAIRO_FONT_WEIGHT_BOLD,
 --     orient=-90,
 -- },
+netdngauge1 = {
+    type="gauge",
+    name='downspeedf',                arg=net_iface,            max_value=100,
+    value_unit=20,
+    x=380,                             y=32,        relativeto='screen2_l',
+    graph_radius=24,
+    graph_thickness=3,
+    graph_start_angle=-90,
+    graph_unit_angle=1.8,              graph_unit_thickness=1.8,
+    graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
+    hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
+    txt_radius=16,
+    txt_weight=1,                      txt_size=10.0,
+    txt_fg_colour=color_graph1,        txt_fg_alpha=0,
+    graduation_radius=20,
+    graduation_thickness=3,            graduation_mark_thickness=2,
+    graduation_unit_angle=9,
+    graduation_fg_colour=color_graph1, graduation_fg_alpha=0,
+    caption=net_iface,
+    caption_weight=1,                  caption_size=10.0,
+    caption_fg_colour=0xFFFFFF,        caption_fg_alpha=0.5,
+    caption_x=16,                      caption_y=0,
+},
+netupgauge1 = {
+    type="gauge",
+    name='upspeedf',             arg=net_iface,                      max_value=100,
+--    value_unit=10,
+    x=0,                         y=0,       relativeto='netdngauge1',
+    graph_radius=19,
+    graph_thickness=3,
+    graph_start_angle=-90,
+    graph_unit_angle=1.8,              graph_unit_thickness=1.8,
+    graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
+    hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
+    txt_radius=16,
+    txt_weight=1,                      txt_size=6.0,
+    txt_fg_colour=color_graph1,        txt_fg_alpha=0,
+    graduation_radius=20,
+    graduation_thickness=3,            graduation_mark_thickness=2,
+    graduation_unit_angle=9,
+    graduation_fg_colour=color_graph1, graduation_fg_alpha=0,
+    caption='',
+    caption_weight=1,                  caption_size=10.0,
+    caption_fg_colour=0xFFFFFF,        caption_fg_alpha=0.5,
+},
+netdown1 = {
+    type="text",
+    name='downspeed',              arg=net_iface,
+    x=30,              y=-16,      relativeto='netdngauge1',
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt1,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=12,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+},
+netup1 = {
+    type="text",
+    name='upspeed',                arg=net_iface,
+    x=30,              y=0,        relativeto='netdngauge1',
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt1,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=12,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+},
+
+
+
+mpd_gauge = {
+    type="gauge",
+    name='mpd_percent',         arg='',            max_value=100,
+    x=1130,                        y=18,            relativeto='screen2_l', 
+    graph_radius=14,
+    graph_thickness=4,
+    graph_start_angle=270,
+    graph_unit_angle=3.6,         graph_unit_thickness=3.6,
+    graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
+    hand_fg_colour=color_graph1,       hand_fg_alpha=0,
+    txt_radius=12,
+    txt_weight=1,                  txt_size=10.0,
+    txt_fg_colour=color_graph1,        txt_fg_alpha=0.0,
+    graduation_radius=46,
+    graduation_thickness=0,        graduation_mark_thickness=0,
+    graduation_unit_angle=20,
+    graduation_fg_colour=color_graph1, graduation_fg_alpha=0,
+    caption='',
+    caption_weight=1,              caption_size=14.0,
+    caption_fg_colour=color_txt1,  caption_fg_alpha=0.0,
+    caption_x=-9,                   caption_y=3,
+--    alert_high=70,
+--    alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
+--    hideeval='${if_match "${mpd_status}" == "MPD not responding"}hide${else}show${endif}',
+},
+mpd_len = {
+    type="text",
+    name='mpd_length',                arg='',
+    x=-10,              y=3,     relativeto='mpd_gauge',
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt1,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=10,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+--    hideeval='${if_match "${mpd_status}" == "MPD not responding"}hide${else}show${endif}',
+},
+mpd_title = {
+    type="text",
+--    name='if_mpd_playing}playing${else}notplaying${endif',                arg='',
+    name='mpd_smart',                arg='',
+    x=18,              y=-3,        relativeto='mpd_gauge',
+    prefix='',                  suffix='',
+    text_fg_colour=color_txt1,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=12,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+--    hideeval='${if_match "${mpd_status}" == "MPD not responding"}hide${else}show${endif}',
+},
+mpd_status = {
+    type="text",
+    name='mpd_status',                arg='',
+    x=0,              y=15,        relativeto='mpd_title',
+    prefix='',                  suffix='',
+    text_fg_colour=color_txt1,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=12,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+--    hideeval='${if_match "${mpd_status}" == "MPD not responding"}hide${else}show${endif}',
+},
 }
 
 -------------------------------------------------------------------------------
@@ -1337,6 +1484,25 @@ function go_gauge_rings(display)
     end
 end
 
+
+
+
+function deepcopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[deepcopy(orig_key)] = deepcopy(orig_value)
+        end
+        setmetatable(copy, deepcopy(getmetatable(orig)))
+    else -- number, string, boolean, etc
+        copy = orig
+    end
+    return copy
+end
+
+
 -------------------------------------------------------------------------------
 --                                                                         MAIN
 function conky_main()
@@ -1418,7 +1584,7 @@ function conky_main()
            start, finish, vis = string.find (dynlog, "%s(.*):", finish)
            start, finish, lay = string.find (dynlog, ":%s(.*)\n", finish)
            local dt_name=conky_parse('${desktop_name}')
---           print (dt_name)
+
            for i in pairs(desktops) do
               if dt_name == desktops[i].workspace then
                  desktops[i].layout = lay
@@ -1494,6 +1660,53 @@ function conky_main()
        while count <= 22 do
           viskey='vis'..count
           gauge[viskey] = nil
+          count = count + 1
+       end
+
+-- dynamically create and destroy network interface monitors
+       local file = io.popen("ifconfig -s|tail -n +2|cut -d ' ' -f 1|grep -v -e 'lo' -e 'virbr'")
+       local count=1
+       while true do
+          local iface = file:read("*line")
+          if iface == nil then break end
+          
+          if count == 1 then
+             gauge['netdngauge'..count].relativeto = 'screen2_l'
+--             gauge['netdown'..count].relativeto = 'netdngauge1'
+--             gauge['netupgauge'..count].relativeto = 'netdngauge1'
+--             gauge['netup'..count].relativeto = 'netdngauge1'
+          else
+             if gauge['netdngauge'..count] == nil then
+                print ('creating net monitor '..count..' for '..iface)
+                gauge['netdngauge'..count]  = deepcopy(gauge['netdngauge1'])
+                gauge['netdown'..count]     = deepcopy(gauge['netdown1'])
+                gauge['netupgauge'..count]  = deepcopy(gauge['netupgauge1'])
+                gauge['netup'..count]       = deepcopy(gauge['netup1'])
+             end
+             gauge['netdngauge'..count].relativeto  = 'netdngauge'..(count - 1)
+             gauge['netdngauge'..count].x           = 100
+             gauge['netdngauge'..count].y           = 0
+             gauge['netdown'..count].relativeto     = 'netdngauge'..count
+             gauge['netupgauge'..count].relativeto  = 'netdngauge'..count
+             gauge['netup'..count].relativeto       = 'netdngauge'..count
+          end
+          
+          gauge['netdngauge'..count].caption = iface
+          gauge['netdngauge'..count].arg = iface
+          gauge['netupgauge'..count].arg = iface
+          gauge['netdown'..count].arg = iface
+          gauge['netup'..count].arg = iface
+--          print ("iface "..iface..' is '..count..' relative to '..gauge['netdngauge'..count].relativeto..' at x='..gauge['netdngauge'..count].x)
+          count = count + 1
+       end
+       file:close()
+
+       while gauge['netdngauge'..count] ~= nil do
+          print ('removing net monitor '..count..' for '..gauge['netdngauge'..count].caption)
+          gauge['netdngauge'..count] = nil
+          gauge['netdown'..count] = nil
+          gauge['netupgauge'..count] = nil
+          gauge['netup'..count] = nil
           count = count + 1
        end
 
