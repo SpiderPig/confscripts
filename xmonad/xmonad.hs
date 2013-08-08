@@ -254,6 +254,20 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((0, xF86XK_AudioLowerVolume      ), spawn "amixer sset Master 1%-;amixer sset 'Master Front' 1%-")
     -- Mute On/Off
     , ((0, xF86XK_AudioMute                     ), spawn "amixer sset Master toggle")
+
+    -- music controls
+    , ((0, xF86XK_AudioPlay                     ), spawn "mpc --no-status toggle")
+    , ((0, xF86XK_AudioStop                     ), spawn "mpc --no-status stop")
+    , ((0, xF86XK_AudioPrev                     ), spawn "mpc --no-status prev")
+    , ((0, xF86XK_AudioNext                     ), spawn "mpc --no-status next")
+    , ((modm, xF86XK_AudioPlay                  ), spawn "mpc --no-status toggle")
+    , ((modm, xF86XK_AudioStop                  ), spawn "mpc --no-status stop")
+    , ((modm, xF86XK_AudioPrev                  ), spawn "mpc --no-status prev")
+    , ((modm, xF86XK_AudioNext                  ), spawn "mpc --no-status next")
+
+    , ((shiftMask, xF86XK_Eject                 ), spawn "eject")
+    , ((controlMask, xF86XK_AudioStop           ), spawn "eject")
+
     -- control opacity
     , ((modm, xK_o                              ), spawn "transset -p 1")
     , ((modm .|. shiftMask, xK_o                ), spawn "transset -p .7")
