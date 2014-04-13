@@ -30,15 +30,15 @@ net_iface='eth0'
 -- define the physical screen layout. 
 screens = {
 {
-   width=0,
+   width='0',
    head=1,            -- corresponds to the xwindow screen order
-   xpos=2,            -- viewport position
+   xpos='2',            -- viewport position
    connected='yes',
 },
 {
-   width=0,
+   width='0',
    head=2,
-   xpos=1,
+   xpos='1',
    connected='yes',
 }
 }
@@ -265,7 +265,7 @@ fsroot = {
     caption_weight=1,              caption_size=14.0,
     caption_fg_colour=color_txt1,  caption_fg_alpha=0.7,
     caption_x=-9,                   caption_y=3,
-    alert_high=70,
+    alert_high=85,
     alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
 },
 fshome = {
@@ -290,7 +290,7 @@ fshome = {
     caption_weight=1,              caption_size=14.0,
     caption_fg_colour=color_txt1,  caption_fg_alpha=0.7,
     caption_x=-9,                   caption_y=3,
-    alert_high=70,
+    alert_high=85,
     alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
     hideeval='${if_mounted /home}show${else}hide${endif}',
 },
@@ -316,7 +316,7 @@ fsbak = {
     caption_weight=1,              caption_size=14.0,
     caption_fg_colour=color_txt1,  caption_fg_alpha=0.7,
     caption_x=-9,                   caption_y=3,
-    alert_high=70,
+    alert_high=85,
     alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
     hideeval='${if_mounted /mnt/external}show${else}hide${endif}',
 },
@@ -469,8 +469,10 @@ date2 = {
 --},
 tempcpu = {
     type="gauge",
-    arg='',                      max_value=100,
-    cmd="(sensors 2>&1|| echo \'CPU Temperature:+0.0\')|grep \'CPU Temperature\'|perl -pe \'s/.*:\\s*\[+-\](\[0-9\]*).*/\\1/\'",
+    max_value=100,
+--    name='acpitemp',                 arg='',
+    name='hwmon',   arg='temp 1 (0.001 0)',
+--    cmd="(sensors 2>&1|| echo \'CPU Temperature:+0.0\')|grep \'CPU Temperature\'|perl -pe \'s/.*:\\s*\[+-\](\[0-9\]*).*/\\1/\'", arg='',
     hideonvalue=0,
     x=700,                         y=32,
 --    x=48,                         y=0,    relativeto='temphdd',
@@ -497,8 +499,10 @@ tempcpu = {
 },
 temphdd = {
     type="gauge",
-    arg='',                      max_value=70,
-    cmd="env -u DISPLAY hddtemp -q /dev/sd?|perl -pe \'s/.*not available//; s/.*:.*:\\s+(\\d+).*/\\1/;  if ($_ > $g){$g = $_;} $_=$g;\'|tail -1",
+--    name='hddtemp',                arg='/dev/sda',
+    max_value=70,
+    cmd="nc localhost 7634|sed \'s/.|\\/dev/\\n|\\/dev/g\'|cut -d '|' -f 4 |perl -pe \'s/UNK/0/; if ($_ > $g){$g = $_;} $_=$g;\'|tail -1",   arg='',
+--    cmd="env -u DISPLAY hddtemp -q /dev/sd?|perl -pe \'s/.*not available//; s/.*:.*:\\s+(\\d+).*/\\1/;  if ($_ > $g){$g = $_;} $_=$g;\'|tail -1",   arg='',
     hideonvalue=0,
     x=740,                         y=32,
     graph_radius=24,
@@ -525,7 +529,7 @@ temphdd = {
 tempgpu = {
     type="gauge",
     arg='',                      max_value=100,
-    cmd="nvidia-settings -q gpucoretemp 2>&1| (grep 'Attribute' || echo \'0 0 0 0\')| awk '{print $4}' | tr -d \'.\'",
+    cmd="nvidia-settings -q gpucoretemp 2>&1| (grep 'Attribute' || echo \'0 0 0 0\')| awk '{print $4}' | head -1| tr -d \'.\'",
     hideonvalue=0,
     x=780,                         y=32,
     graph_radius=24,
@@ -996,7 +1000,7 @@ netdngauge1 = {
 netupgauge1 = {
     type="gauge",
     name='upspeedf',             arg=net_iface,                      max_value=100,
---    value_unit=10,
+    value_unit=5,
     x=0,                         y=0,       relativeto='netdngauge1',
     graph_radius=19,
     graph_thickness=3,
@@ -1535,6 +1539,7 @@ function conky_main()
           screens[count].xpos    = xpos
           screens[count].connected = 'yes'  -- need to detect this
           count = count + 1
+--          print ('got w '..width..' xp '..xpos)
        end
        file:close()
 
@@ -1592,7 +1597,7 @@ function conky_main()
            end
         end
 
-        if screens[1].connected == 'no' then
+        if screens[1].connected == 'no' and screens[1].head > 0 then
            -- if our first screen is not visible then stick its ws number in the list so we see it on the other screen
            if desktops[screens[1].head].urgent > 0 then vis = vis.."*" end
            vis = vis..desktops[screens[1].head].workspace.." "
@@ -1600,12 +1605,16 @@ function conky_main()
         end
 
 
-       gauge['workspace1'].value = desktops[screens[1].head].workspace
-       gauge['layout1'].value = desktops[screens[1].head].layout
-       if desktops[screens[1].head].urgent == 1 then gauge['workspace1'].text_fg_colour=color_txt_urgent else gauge['workspace1'].text_fg_colour=color_txt1 end
-       gauge['workspace2'].value = desktops[screens[2].head].workspace
-       gauge['layout2'].value = desktops[screens[2].head].layout
-       if desktops[screens[2].head].urgent == 1 then gauge['workspace2'].text_fg_colour=color_txt_urgent else gauge['workspace2'].text_fg_colour=color_txt1 end
+       if screens[1].head > 0 then
+          gauge['workspace1'].value = desktops[screens[1].head].workspace
+          gauge['layout1'].value = desktops[screens[1].head].layout
+          if desktops[screens[1].head].urgent == 1 then gauge['workspace1'].text_fg_colour=color_txt_urgent else gauge['workspace1'].text_fg_colour=color_txt1 end
+       end
+       if screens[2].head > 0 then
+          gauge['workspace2'].value = desktops[screens[2].head].workspace
+          gauge['layout2'].value = desktops[screens[2].head].layout
+          if desktops[screens[2].head].urgent == 1 then gauge['workspace2'].text_fg_colour=color_txt_urgent else gauge['workspace2'].text_fg_colour=color_txt1 end
+       end
 
        gauge['workspacevis'].value = vis
        local count = 1
@@ -1701,6 +1710,7 @@ function conky_main()
        end
        file:close()
 
+       if count < 2 then count = 2 end
        while gauge['netdngauge'..count] ~= nil do
           print ('removing net monitor '..count..' for '..gauge['netdngauge'..count].caption)
           gauge['netdngauge'..count] = nil
@@ -1726,6 +1736,8 @@ function conky_main()
            gauge['layout2'].align_x = 'left'
            gauge['layout2'].x = 20
            gauge['workspacevis'].relativeto = 'workspace1'
+           gauge['netdngauge1'].relativeto = 'screen2_l'
+           gauge['netdngauge1'].x = 380
         else
            gauge['screen1_l'] =      {x=screens[1].width + 1,   y=0}
            gauge['screen1_r'] =      {x=conky_window.width,     y=0}
@@ -1741,6 +1753,8 @@ function conky_main()
            gauge['layout1'].align_x = 'left'
            gauge['layout1'].x = 20
            gauge['workspacevis'].relativeto = 'workspace2'
+           gauge['netdngauge1'].relativeto = 'screen1_l'
+           gauge['netdngauge1'].x = 1500
         end
            gauge['abs_left']  =      {x=0,                      y=0}
            gauge['abs_right'] =      {x=conky_window.width,     y=0}
