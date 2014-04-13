@@ -10,6 +10,7 @@ import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare
 import XMonad.Util.SpawnOnce
 import XMonad.Util.Scratchpad
+import XMonad.Util.NamedScratchpad
 
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.NoBorders
@@ -18,7 +19,7 @@ import XMonad.Layout.Renamed
 import XMonad.Layout.IM
 import XMonad.Layout.Reflect
 import XMonad.Layout.Spacing
-import XMonad.Layout.Monitor
+import qualified XMonad.Layout.Monitor as MON
 -- import XMonad.Layout.BalancedTile
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.ThreeColumns
@@ -123,9 +124,9 @@ twodigitHex a = printf "%02x" a
 myGridSpawnColorizer :: String -> Bool -> X (String, String)
 myGridSpawnColorizer s active =
     let seed x = toInteger (sum $ map ((*x).fromEnum) s) :: Integer
-        (r,g,b) = hsv2rgb (180,
+        (r,g,b) = hsv2rgb (192,
                            45/100,
-                           (fromInteger ((seed 121) `mod` 1000))/5000+0.1)
+                           (fromInteger ((seed 121) `mod` 1000))/8000+0.1)
     in if active
          then return ("#001010", "white")
          else return ("#" ++ concat (map (twodigitHex.(round :: Double -> Word8).(*256)) [r, g, b] ), "white")
@@ -134,9 +135,15 @@ myGSSpawnConfig = gsconfig myGridSpawnColorizer
 
 myGridSpawnList = ["audacious", "alienarena", "dolphin",  "emacs", "firefox",  "gimp", "gwenview", "k3b", "kate", "kcalc", "okular", "oocalc", "oowriter", "vlc", "VirtualBox", "urxvt"]
 
+scratchpads = [(NS "mixer"     "pavucontrol"     (className =? "Pavucontrol")     (customFloating $ W.RationalRect 0 (32/1200) 0.3 1))
+              ,(NS "appfinder" "xfce4-appfinder" (className =? "Xfce4-appfinder") (customFloating $ W.RationalRect 0.3 (32/1200) 0.4 1))]
+
+
 windowZoom :: X ()
 windowZoom = findWorkspace getSortByIndex Next EmptyWS 1
            >>= \t -> (windows . W.shift $ t) >> (windows . W.view $ t)
+
+
 -- windowZoom = do t <- findWorkspace getSortByIndex Next EmptyWS 1
 --            windows . W.shift $ t 
 --            windows . W.view $ t
@@ -155,8 +162,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch dmenu
     , ((modm,                  xK_p     ), spawn (menuCmd ++ " 2>&1 >/dev/null"))
     , ((modm .|. controlMask,  xK_p     ), spawnSelected myGSSpawnConfig myGridSpawnList)
-    , ((modm .|. shiftMask,    xK_p     ), spawn (lmenuCmd ++ " 2>&1 >/dev/null"))
-    , ((0,                     xK_Menu  ), spawn (lmenuCmd ++ " 2>&1 >/dev/null"))
+--    , ((modm .|. shiftMask,    xK_p     ), spawn (lmenuCmd ++ " 2>&1 >/dev/null"))
+--    , ((modm,                  xK_Menu  ), spawn (lmenuCmd ++ " 2>&1 >/dev/null"))
+    , ((modm .|. shiftMask,    xK_p     ), namedScratchpadAction scratchpads "appfinder")
+    , ((modm,                  xK_Menu  ), namedScratchpadAction scratchpads "appfinder")
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
@@ -235,7 +244,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Restart my dzen status bar.
     , ((modm              , xK_r     ), spawn "xmonad --recompile;" >> io exitHook)
     , ((modm .|. shiftMask, xK_r     ), spawn "killall conky; killall dzconky.sh; killall dzen2; ~/.xmonad/dzconky.sh")
-    , ((modm .|. controlMask, xK_r   ), spawn "killall conky; killall dzconky.sh; killall dzen2; conky -c ~/.lpannel/conkyrc_lpan")
+    , ((modm .|. controlMask, xK_r   ), spawn "killall conky; killall dzconky.sh; killall dzen2;  LUA_PATH=$LUA_PATH;$HOME/.lpannel/?.lua conky -c ~/.lpannel/conkyrc_lpan")
     -- switch modes for disconnected vga monitor
     , ((modm              , xK_v     ), spawn "[[ -e ~/tmp/disvga ]] && rm ~/tmp/disvga || echo -n yes >~/tmp/disvga")
 
@@ -254,6 +263,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((0, xF86XK_AudioLowerVolume      ), spawn "amixer sset Master 1%-;amixer sset 'Master Front' 1%-")
     -- Mute On/Off
     , ((0, xF86XK_AudioMute                     ), spawn "amixer sset Master toggle")
+
+
+    , ((modm,   xK_x                            ), namedScratchpadAction scratchpads "mixer")
 
     -- music controls
     , ((0, xF86XK_AudioPlay                     ), spawn "mpc --no-status toggle")
@@ -279,7 +291,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- win8 sequences sent by touch device Logitech T650
     , ((mod4Mask .|. controlMask, xK_BackSpace           ), screenSwap R True)           -- one finger swipe from left edge
-    , ((mod4Mask .|. mod1Mask, 0x1008ffb1                ), spawn (lmenuCmd ++ " 2>&1 >/dev/null"))        -- one finger swipe from right edge
+--    , ((mod4Mask .|. mod1Mask, 0x1008ffb1                ), spawn (lmenuCmd ++ " 2>&1 >/dev/null"))        -- one finger swipe from right edge
     , ((mod4Mask .|. controlMask, 0x1008ffb1             ), scratchpadSpawnActionCustom myScratchTerm)  -- one finger swipe from top edge
 --    , ((0, 0xffeb                                        ), spawn "xmessage '3 up'")     -- three finger swipe up (sends super_r same as mod4)
     , ((mod4Mask, xK_d                                   ), windowSwap D False)          -- three finger swipe down
@@ -460,18 +472,20 @@ myManageHook = composeAll . concat $
     [ [className =? c --> doCenterFloat | c <- myCFloats]
     , [title =? t --> doCenterFloat | t <- myTFloats]
     , [resource =? r --> doCenterFloat | r <- myRFloats]
+    , [role =? r --> doCenterFloat | r <- myRFloats]
     , [resource =? i --> doIgnore | i <- myIgnores]
     , [role       =? x --> ask >>= doF . W.sink | x <- myRlNoFloats]
-    , [(className =? x <||> title =? x <||> resource =? x) --> ask >>= doF . W.sink | x <- myNoFloats]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "1" | x <- my1Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "2" | x <- my2Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "3" | x <- my3Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "4" | x <- my4Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "5" | x <- my5Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "6" | x <- my6Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "7" | x <- my7Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "8" | x <- my8Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) --> doShift "9" | x <- my9Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> ask >>= doF . W.sink | x <- myNoFloats]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> doShift "1" | x <- my1Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> doShift "2" | x <- my2Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> doShift "3" | x <- my3Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> doShift "4" | x <- my4Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> doShift "5" | x <- my5Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> doShift "6" | x <- my6Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> doShift "7" | x <- my7Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> doShift "8" | x <- my8Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> doShift "9" | x <- my9Shifts]
+    , [(className =? x <||> title =? x <||> resource =? x <||> role =? x) --> doShift "A" | x <- myAShifts]
 --    , [(className =? "Firefox" <&&> resource =? "Dialog") --> doFloat]
 --    , [(className =? x <||> title =? x <||> resource =? x) --> doTransparent 0xaa000000 | x <- myTrans]
     , [doTransparent 0xb2000000]
@@ -490,6 +504,9 @@ myManageHook = composeAll . concat $
     , [(className =? x <||> title =? x <||> resource =? x) --> doCopyAll | x <- myCopyAlls]
     , [scratchpadManageHook $ W.RationalRect 0 (32/1200) 1 0.42]
     , [resource =? "scratchpad" --> doTransparent 0xFF000000]
+    , [namedScratchpadManageHook scratchpads]
+    , [(className =? "Pavucontrol") --> doTransparent 0xE5000000]
+    , [(className =? "Xfce4-appfinder") --> doTransparent 0xE5000000]
     , [manageDocks]
     ]
     where
@@ -502,7 +519,7 @@ myManageHook = composeAll . concat $
     doCopyAll = doF copyToAll
     myCFloats = ["MPlayer", "Nvidia-settings", "XCalc", "XFontSel", "Xmessage"]
     myTFloats = ["Downloads", "Firefox Preferences", "Save As...", "User Identification Request"] --"Buddy List"
-    myRFloats = ["kcalc"]
+    myRFloats = ["kcalc", "AlarmWindow"]
     myIgnores = ["desktop_window", "kdesktop", "cairo-dock"]
     myRlNoFloats = ["gimp-image-window", "gimp-dock", "gimp-toolbox"]
     myNoFloats = ["dreamchess", "pouetChess", "JSAF Editor", "tools", "infobox"]
@@ -515,24 +532,25 @@ myManageHook = composeAll . concat $
     my7Shifts = ["Gimp"]
     my8Shifts = []
     my9Shifts = ["VirtualBox"]
+    myAShifts = ["AlarmWindow"]
     myAvoidMasters = ["konsole", "xchat", "urxvt", "screen", "Speedbar 1.0", "Ediff", "editorShell", "JSAF Editor"]
     myCopyAlls = ["gcompris", "xclock"]
 --    myTrans = ["xclock", "Firefox", "Kate", "Okular", "Google-chrome"]
     myOpaque = ["Audacious", "kcalc", "vlc", "Netflix - Mozilla Firefox", "mplayer", "Plugin-container", "URxvt", "screen", "status bar", "konsole", "VirtualBox", "Xmessage", "gcompris", "gimp", "JSAF", "Tci", "xv", "Xsane", "Gwenview", "Vncviewer"]
 
-clock = monitor {
+clock = MON.monitor {
   -- Cairo-clock creates 2 windows with the same classname, thus also using title
-  prop = ClassName "dzen title"
+  MON.prop = ClassName "dzen title"
   -- rectangle 150x150 in lower right corner, assuming 1280x800 resolution
-  , rect = Rectangle (0) (0) 1920 16
+  , MON.rect = Rectangle (0) (0) 1920 16
   -- avoid flickering
-  , persistent = True
+  , MON.persistent = True
   -- make the window transparent
-  , opacity = 0.6
+  , MON.opacity = 0.6
   -- hide on start
-  , visible = True
+  , MON.visible = True
   -- assign it a name to be able to toggle it independently of others
-  , name = "clock"
+  , MON.name = "clock"
 }
     
 ------------------------------------------------------------------------
