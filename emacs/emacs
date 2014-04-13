@@ -142,6 +142,24 @@
 
 (semantic-add-system-include "/usr/src/debug/openmotif-2.3.2/lib/Xm/" 'c-mode)
 
+;;(semantic-add-system-include (expand-file-name "~/nwdc/JSAF_Maintenance_repo/include/libinc") 'c-mode)
+;;(semantic-add-system-include (expand-file-name "~/nwdc/JSAF_Maintenance_repo/include/libinc") 'c++-mode)
+;;(setq semanticdb-project-roots
+;;         (list ;;(expand-file-name "~/nwdc/JSAF_Maintenance_repo")
+;;               (expand-file-name "~/nwdc/JSAF_2ndMaintenance_repo")))
+
+;; (global-ede-mode t)
+;; (ede-cpp-root-project "Jsaf1"
+;;                 :name "Jsaf1 Project"
+;;                 :file "~/nwdc/JSAF_Maintenance_repo/Makefile.in"
+;;                 :include-path '("/include/libinc"
+;;                                 "/include/global"
+;;                                 "/libsrc"
+;;                                )
+;;                 :system-include-path '("~/nwdc/JSAF_Maintenance_repo/include/libinc")
+;; ;;                :spp-table '(("isUnix" . "")
+;; ;;                             ("BOOST_TEST_DYN_LINK" . ""))
+;; )
  
 ;; (require 'semantic/db-cscope)
 ;; (when (cedet-cscope-version-check t)

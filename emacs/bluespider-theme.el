@@ -19,9 +19,9 @@
    ;; Font lock faces
    `(font-lock-builtin-face ((,class (:foreground "pale green"))))
    `(font-lock-comment-face ((,class (:foreground "#6095AF" :italic t))))
-;   `(font-lock-comment-delimiter-face ((,class (:foreground ,"blue"))))
+;;   `(font-lock-comment-delimiter-face ((,class (:foreground ,"blue"))))
    `(font-lock-constant-face ((,class (:foreground "turquoise"))))
-   `(font-lock-doc-string-face ((,class (:foreground "#3041c4"))))
+   `(font-lock-doc-string-face ((,class (:foreground "#6095AF")))) ;;#3041c4
    `(font-lock-doc-face ((,class (:foreground "gray"))))
    `(font-lock-reference-face ((,class (:foreground "red"))))
    `(font-lock-function-name-face ((,class (:foreground "LightSteelBlue"))))
@@ -29,7 +29,7 @@
    `(font-lock-negation-char-face ((,class (:foreground ,"cyan"))))
    `(font-lock-preprocessor-face ((,class (:foreground "#e3ea94"))))
    `(font-lock-string-face ((,class (:foreground "#AFE5FF"))))
-   `(font-lock-type-face ((,class (:foreground "aquamarine"))))
+   `(font-lock-type-face ((,class (:foreground "pale turquoise"))))
    `(font-lock-variable-name-face ((,class (:foreground "deep sky blue"))))
    `(font-lock-warning-face ((,class (:foreground "salmon1" :bold t))))
    `(c-annotation-face ((,class (:inherit font-lock-constant-face))))
@@ -98,7 +98,8 @@
 ;; cscope-line-face                              abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
 ;; cscope-line-number-face                       abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
 ;; cscope-mouse-face                             abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
-    `(bm-face ((,class (:background "#04122b" :foreground "white"))))
+    `(bm-face ((,class (:background "#04122b" :foreground nil)))) ;; :foreground "white"
+    `(bm-persistent-face ((,class (:background "#04122b" :foreground nil)))) ;; :foreground "white"
 ))
 (provide-theme 'bluespider)
 
