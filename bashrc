@@ -1,4 +1,5 @@
 # .bashrc
+umask 27
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
