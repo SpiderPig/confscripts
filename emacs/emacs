@@ -1,4 +1,5 @@
 (add-to-list 'load-path "~/.emacs.d/lisp/")
+(add-to-list 'load-path "~/.emacs.d/lisp/emacs-eclim/")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
 (custom-set-variables
@@ -9,22 +10,28 @@
  '(ansi-color-names-vector ["#212526" "#ff4b4b" "#b4fa70" "#fce94f" "#729fcf" "#ad7fa8" "#8cc4ff" "#eeeeec"])
  '(backup-by-copying t)
  '(backup-directory-alist (quote (("." . "~/tmp/ebak"))))
+ '(bm-buffer-persistence t)
+ '(bm-repository-file "~/.emacs.d/bm-repository")
+ '(c-default-style (quote ((c-mode . "msytsma") (c++-mode . "msytsma") (java-mode . "eclipse-java") (awk-mode . "awk") (other . "gnu"))))
  '(comint-scroll-to-bottom-on-input t)
  '(compilation-scroll-output (quote first-error))
  '(cua-mode t nil (cua-base))
  '(custom-enabled-themes (quote (bluespider)))
- '(custom-safe-themes (quote ("c6f8d775cd9fbb4a516e60f35d22d366daeefbbcff760605415bfdfa77ad7be4" "71559d928d2cc772882e58b0fb5334dbab76c4cdd0ec5eddd9c80efc4d5a35fa" default)))
+ '(custom-safe-themes (quote ("08d13adf965b11cae425f4bb0ad8aec94417f2fcc84fde85451b17c280a8c4f0" "76a7058dc3c8aff1760f4b49a7faca35641c90c64d535e9bd76e51d69dd17e2a" default)))
  '(delete-old-versions (quote other))
  '(desktop-files-not-to-save "^$")
  '(desktop-save t)
  '(desktop-save-mode t)
  '(dired-dwim-target t)
+ '(eclim-eclipse-dirs (quote ("~/lib/eclipse/")))
  '(ediff-split-window-function (quote split-window-horizontally))
  '(ediff-window-setup-function (quote ediff-setup-windows-plain))
  '(even-window-heights nil)
  '(gdb-create-source-file-list nil)
  '(global-auto-revert-mode t)
+ '(help-at-pt-display-when-idle t nil (help-at-pt))
  '(ibuffer-expert t)
+ '(ibuffer-show-empty-filter-groups nil)
  '(indent-tabs-mode nil)
  '(indicate-empty-lines t)
  '(kill-whole-line t)
@@ -53,6 +60,7 @@
 
 (require 'package)
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 (let ((default-directory "~/.emacs.d/elpa"))
   (normal-top-level-add-subdirs-to-load-path))
 
@@ -61,7 +69,7 @@
 (add-to-list 'auto-mode-alist '("\\.rdr\\'" . lisp-mode))
 
 (setq auto-mode-alist (append '(("\\.s?html\\.?.*\\'" . html-mode)
-				("\\.java\\'" . jde-mode) 
+				("\\.java\\'" . java-mode) 
 				("\\.[hg]s\\'" . haskell-mode)
                                 ("\\.hs\\'" . haskell-mode)
 				("\\.hi\\'" . haskell-mode)
@@ -69,33 +77,66 @@
 			      auto-mode-alist))
 
 
-;; set my c-mode indent rules
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; set my c-mode indent rules
+(c-add-style '"msytsma"
+             '((c-basic-offset . 4)
+               (tab-width . 4)
+               (c-comment-only-line-offset . 0)
+               (c-offsets-alist . ((statement-block-intro . +)
+                                   (knr-argdecl-intro . +)
+                                   (substatement . *)
+                                   (substatement-open . 0)
+                                   (label . 0)
+                                   (case-label . *)
+                                   (statement-cont . *)
+                                   (statement-case-intro . *)
+                                   )))
+             )
+
+(c-add-style '"eclipse-java"
+             '((c-basic-offset . 4)
+               (tab-width . 4)
+               (indent-tabs-mode t)
+               (c-comment-only-line-offset . (0 . 0))
+               ;; the following preserves Javadoc starter lines
+               (c-offsets-alist . ((inline-open . 0)
+                                   (topmost-intro-cont    . +)
+                                   (statement-block-intro . +)
+                                   (knr-argdecl-intro     . 5)
+                                   (substatement-open     . +)
+                                   (substatement-label    . +)
+                                   (label                 . +)
+                                   (statement-case-open   . +)
+                                   (statement-cont        . +)
+                                   (arglist-intro  . c-lineup-arglist-intro-after-paren)
+                                   (arglist-close  . c-lineup-arglist)
+                                   (access-label   . 0)
+                                   (inher-cont     . c-lineup-java-inher)
+                                   (func-decl-cont . c-lineup-java-throws)
+                                   (arglist-cont-nonempty . ++)
+                                   )))
+             )
+;; Fix java 1.5 annotation indentation
+(require 'java-mode-indent-annotations)
+(add-hook 'java-mode-hook
+          '(lambda ()
+             (java-mode-indent-annotations-setup)))
+
+
+
 (setq c-mode-common-hook
       '(lambda ()
 
          (setq
-          ;;  c-default-style "linux"
-          c-basic-offset 4
+;;          c-basic-offset 4
           c-tab-always-indent nil
           c-indent-level 4
           c-continued-statement-offset 2
           c-argdecl-indent 4
           case-fold-search nil
-          tab-width 8)
-
-         (c-add-style '"msytsma"
-                      '((c-basic-offset . 4)
-                        (c-comment-only-line-offset . 0)
-                        (c-offsets-alist . ((statement-block-intro . +)
-                                            (knr-argdecl-intro . +)
-                                            (substatement . *)
-                                            (substatement-open . 0)
-                                            (label . 0)
-                                            (case-label . *)
-                                            (statement-cont . *)
-                                            (statement-case-intro . *)
-                                            )))
-                      t)
+;;          tab-width 4
+          )
+ 
 
 ;;         (add-to-list 'c-cleanup-list 'space-before-funcall)
          (add-to-list 'c-cleanup-list 'compact-empty-funcall)
@@ -107,6 +148,11 @@
          (modify-syntax-entry ?_ "w" c-mode-syntax-table)
          (linum-mode t)
 ))
+
+;; (setq c-default-style (append '((c-mode     . "msytsma")
+;;                                 (java-mode  . "eclipse-java")
+;;                                 (other      . "msytsma")
+;; )))
 
 
 (defun maybe-svncommit-set-hook ()
@@ -132,7 +178,15 @@
 (add-hook 'text-mode-hook 'maybe-gitcommit-set-hook)
 (add-to-list 'auto-mode-alist '("COMMIT_EDITMSG" . text-mode))
 
+;; enable remote file editing
+(require 'tramp)
+(setq tramp-default-method "scp")
 
+
+;; enabel cscope C-c s commands
+(require 'xcscope)
+
+;;;;;;;;;;;;;;;;;;;; START CEDIT CONFIG ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; get cedet http://cedet.sourceforge.net/setup.shtml
 ;; snapshot from here http://www.randomsample.de/cedet-snapshots/
 ;; configuration guide http://alexott.net/en/writings/emacs-devenv/EmacsCedet.html
@@ -172,7 +226,11 @@
 ;;(add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode)
 ;;(add-to-list 'semantic-default-submodes 'global-semantic-idle-summary-mode)
 ;;(add-to-list 'semantic-default-submodes 'global-cedet-m3-minor-mode) ;; only bzr version
- 
+
+;; remove java modes from semantic support
+;;(setq semantic-new-buffer-setup-functions (assq-delete-all 'java-mode semantic-new-buffer-setup-functions))
+;;(setq semantic-new-buffer-setup-functions (assq-delete-all 'js-mode semantic-new-buffer-setup-functions))
+
 ;;(setq semantic-idle-scheduler-working-in-modline-flag t)
 ;;(setq semantic-complete-inline-analyzer-idle-displayor-class semantic-displayor-tooltip)
 (semantic-mode t)
@@ -198,7 +256,40 @@
 (set-face-background 'ac-selection-face "steelblue")
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ECLIM ;;;;;
+(add-hook 'desktop-after-read-hook ;;after-init-hook
+          '(lambda ()
+ 
+             (require 'eclim)
+             (require 'eclimd)
+             (setq eclimd-default-workspace "~/.eclipse_workspace")
+             ;;(setq eclimd-default-workspace nil)
+             ;;(setq eclimd-wait-for-process nil)
+            
+             ;; Add eclim to the autocomplete (ac on in cedet config)
+             (require 'ac-emacs-eclim-source)
+             (ac-emacs-eclim-config)
 
+             (global-eclim-mode t)
+))
+
+;;(add-hook 'eclim-mode-hook
+;;          (lambda ()
+ 
+;;            (make-local-variable help-at-pt-display-when-idle)
+;;            (setq help-at-pt-display-when-idle t)
+;;            (setq help-at-pt-timer-delay 0.1)
+;;            (help-at-pt-set-timer)
+
+;;            (add-to-list 'ac-omni-completion-sources
+;;                         (cons "\\." '(ac-source-semantic)))
+;;            (add-to-list 'ac-omni-completion-sources
+;;                         (cons "->" '(ac-source-semantic)))
+;;            ))
+
+;; disable the suspend frame key in xwindows
+(when window-system
+(global-unset-key (kbd "C-x C-z")))
 
 ;; start speedbar if we're using a window system
 ;; (when window-system
@@ -223,18 +314,33 @@
 (global-set-key (kbd "C-x C-b") 'ibuffer) ;;'buffer-menu)
 (setq ibuffer-saved-filter-groups
           (quote (("default"
-                   ("dired" (mode . dired-mode))))))
+                   ("dired" (mode . dired-mode))
+                   ("cfg" (or
+                           (name . "^\\.")
+                           (filename . "/home/matt/gentoo/")
+                           (filename . "/home/matt/\\.")
+                           (filename . "/home/msytsma/\\.")))
+;;                           (filename . (concat (expand-file-name "~/") "\\."))))
+                   ("diskless" (filename . "/var/lib/diskless"))
+                   ("etc" (or
+                           (filename . "/etc/")
+                           (filename . "/var/lib/portage/")))
+))))
 
 (add-hook 'ibuffer-mode-hook
               (lambda ()
                 (ibuffer-switch-to-saved-filter-groups "default")))
 
-;; enabel cscope C-c s commands
-(require 'xcscope)
 
-;; enable remote file editing
-(require 'tramp)
-(setq tramp-default-method "scp")
+;; turn on icicles mode
+(add-hook 'desktop-after-read-hook ;;after-init-hook
+          '(lambda ()
+             (icy-mode 1)
+))
+
+;; enable winner mode
+(when (fboundp 'winner-mode)
+      (winner-mode 1))
 
 ;; enable swapping windows
 ;(require 'transpose-frame)
@@ -256,11 +362,18 @@
 ;; enable a single frame mode for speedbar
 (require 'sr-speedbar)
 
-;; simple book marks
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Simple Bookmarks ;;;;;
+;;(setq bm-restore-repository-on-load t)
 (require 'bm)
 (global-set-key (kbd "C-b") 'bm-toggle)
 (global-set-key (kbd "M-<next>")   'bm-next)
 (global-set-key (kbd "M-<prior>") 'bm-previous)
+
+(add-hook 'auto-save-hook 'bm-save)
+(add-hook 'desktop-after-read-hook 'bm-load-and-restore)
+(add-hook 'kill-buffer-hook 'bm-buffer-save)
+(add-hook 'kill-emacs-hook '(lambda nil
+                              (bm-save)))
 
 ;; (require 'breadcrumb)
 ;; (global-set-key (kbd "C-b")        'bc-set)
@@ -275,6 +388,8 @@
  ;;(set-frame-parameter (selected-frame) 'alpha '(<active> [<inactive>]))
 ;;(set-frame-parameter (selected-frame) 'alpha '(70 70))
 ;;(add-to-list 'default-frame-alist '(alpha 70 70))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRED TWEAKS ;;;;;;;
 
 (defun dired-follow-file ()
  "In dired, visit the file or directory on this line.
@@ -359,6 +474,12 @@ Otherwise, invoke `dired-find-file' on the file."
       (desktop-save desktop-dirname)))
 (add-hook 'auto-save-hook 'my-desktop-save)
 
+;; save my mini-buffer histories
+(setq savehist-additional-variables
+      '(search-ring regexp-search-ring command-history shell-command-history extended-command-history file-name-history)
+      savehist-file "~/.emacs.d/savehist")
+(savehist-mode t)
+
 
 ;;
 ;; Fix the auto-revert-handler so that if the system time is the
@@ -435,10 +556,6 @@ This is an internal function used by Auto-Revert Mode."
         (vc-find-file-hook)))))
 
 
-;; enable winner mode
-(when (fboundp 'winner-mode)
-      (winner-mode 1))
-
 
 ;; one stop shop for build module and link project
 ;; recurses up the tree till it finds the project root and adds a link command for the whole project
@@ -473,9 +590,3 @@ This is an internal function used by Auto-Revert Mode."
   ;; Compile current buffer AND the src/JSAF dir
   (compile (concat "make -k && make -k -C " (project-root))))
 
-
-;; save my mini-buffer histories
-(setq savehist-additional-variables
-      '(search-ring regexp-search-ring command-history shell-command-history extended-command-history file-name-history)
-      savehist-file "~/.emacs.d/savehist")
-(savehist-mode t)
