@@ -17,9 +17,10 @@
  '(compilation-scroll-output (quote first-error))
  '(cua-mode t nil (cua-base))
  '(custom-enabled-themes (quote (bluespider)))
- '(custom-safe-themes (quote ("08d13adf965b11cae425f4bb0ad8aec94417f2fcc84fde85451b17c280a8c4f0" "76a7058dc3c8aff1760f4b49a7faca35641c90c64d535e9bd76e51d69dd17e2a" default)))
+ '(custom-safe-themes (quote ("119e21c262218098a8f508cbc4bf93839d8f0c3035c9d2b1d5794de6159e7b4b" "0c6a412fae52c01888f4cca695d5c77d9912ff864494dc9b2cf087117e57a432" "08d13adf965b11cae425f4bb0ad8aec94417f2fcc84fde85451b17c280a8c4f0" "76a7058dc3c8aff1760f4b49a7faca35641c90c64d535e9bd76e51d69dd17e2a" default)))
  '(delete-old-versions (quote other))
  '(desktop-files-not-to-save "^$")
+ '(desktop-minor-mode-table (quote ((auto-fill-function auto-fill-mode) (vc-mode nil) (vc-dired-mode nil) (erc-track-minor-mode nil) (savehist-mode nil) (icicle-mode nil) (undo-tree-mode nil))))
  '(desktop-save t)
  '(desktop-save-mode t)
  '(dired-dwim-target t)
@@ -29,14 +30,17 @@
  '(even-window-heights nil)
  '(gdb-create-source-file-list nil)
  '(global-auto-revert-mode t)
+ '(global-undo-tree-mode t)
  '(help-at-pt-display-when-idle t nil (help-at-pt))
  '(ibuffer-expert t)
+ '(ibuffer-formats (quote ((mark modified read-only " " (name 32 32 :left :elide) " " (size 9 -1 :right) " " (mode 16 16 :left :elide) " " filename-and-process) (mark " " (name 16 -1) " " filename))))
  '(ibuffer-show-empty-filter-groups nil)
  '(indent-tabs-mode nil)
  '(indicate-empty-lines t)
  '(kill-whole-line t)
  '(mouse-autoselect-window t)
  '(mouse-yank-at-point t)
+ '(org-agenda-files (quote ("~/my.org")))
  '(save-place t nil (saveplace))
  '(scroll-bar-mode (quote left))
  '(scroll-conservatively 100000)
@@ -48,6 +52,7 @@
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(tool-bar-position (quote right))
+ '(uniquify-buffer-name-style (quote post-forward) nil (uniquify))
  '(vc-make-backup-files t)
  '(version-control t)
  '(visible-bell t))
@@ -325,17 +330,29 @@
                    ("etc" (or
                            (filename . "/etc/")
                            (filename . "/var/lib/portage/")))
+                   ("WCCD-GUI" (filename . "/home/msytsma/nwdc/spiderman/WCCD_repo/GUI/"))
+                   ("WCCD-COM" (filename . "/home/msytsma/nwdc/spiderman/WCCD_repo/COMMON/"))
+                   ("WCCD" (filename . "/home/msytsma/nwdc/spiderman/"))
+                   ("Octavius" (filename . "/home/msytsma/nwdc/JSAF_WCCD_repo/"))
+                   ("JBUS" (filename . "/home/msytsma/nwdc/JBUS_repo/"))
 ))))
 
 (add-hook 'ibuffer-mode-hook
               (lambda ()
                 (ibuffer-switch-to-saved-filter-groups "default")))
 
+(require 'uniquify)
 
 ;; turn on icicles mode
 (add-hook 'desktop-after-read-hook ;;after-init-hook
           '(lambda ()
              (icy-mode 1)
+))
+
+;; explicitly turn on undo-tree, the custom options setting misses some desktop restore buffers
+(add-hook 'desktop-after-read-hook
+          '(lambda ()
+             (global-undo-tree-mode 1)
 ))
 
 ;; enable winner mode
@@ -590,3 +607,18 @@ This is an internal function used by Auto-Revert Mode."
   ;; Compile current buffer AND the src/JSAF dir
   (compile (concat "make -k && make -k -C " (project-root))))
 
+
+(setq initial-scratch-message "
+;;  {o,o}
+;; ./)_)
+;;   \" \"
+;;
+;;")
+
+
+;; little function to help when scratchpadding binary calculations
+(defun  as-binary(x)
+  (interactive)
+  (concat "#b"
+          (let ((calc-number-radix 2))
+            (math-format-radix x))))
