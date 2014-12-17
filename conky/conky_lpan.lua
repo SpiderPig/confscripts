@@ -296,7 +296,8 @@ fshome = {
 },
 fsbak = {
     type="gauge",
-    name='fs_used_perc',           arg='/mnt/external/',                max_value=100,
+--    name='fs_used_perc',           arg='/mnt/external/',
+    max_value=100,
     x=40,                          y=0,            relativeto='fshome', 
     graph_radius=14,
     graph_thickness=4,
@@ -318,7 +319,19 @@ fsbak = {
     caption_x=-9,                   caption_y=3,
     alert_high=85,
     alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
-    hideeval='${if_mounted /mnt/external}show${else}hide${endif}',
+    --    hideeval='${if_mounted /mnt/external}show${else}hide${endif}',
+    hide = 'hide',
+    tick = function(data)
+       local mnted = conky_parse('${if_mounted /mnt/external}show${else}hide${endif}')
+       if mnted == 'show' then
+          data.hide = 'show'
+          data.caption_fg_colour='0x6298B3'
+          local val = conky_parse('${fs_used_perc /mnt/external/}')
+          data.value = val;
+       else
+          data.caption_fg_colour=color_txt1
+       end
+    end
 },
 host = {
     type="text",
@@ -394,8 +407,7 @@ time2 = {
     name='time',        arg='%H:%M:%S',
     x=-10,                          y=22,   relativeto='abs_scr2',
     align_x='right',
-    hideeval='${if_match "${battery_short}" != "U"}show${else}hide${endif}', 
---    x=conky_window.width-200,      y=24,
+--    hideeval='${if_match "${battery_short}" != "U"}show${else}hide${endif}', 
     prefix='',                     suffix='',
     text_fg_colour=color_txt1,     text_fg_alpha=0.7,
     prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
@@ -404,14 +416,18 @@ time2 = {
     size=16,
     slant=CAIRO_FONT_SLANT_NORMAL,
     face=CAIRO_FONT_WEIGHT_BOLD,
+    hideonvalue=0,
+    tick = function(data)
+              local str = conky_parse('${battery_short}')
+              if str == 'U' then data.hide = 'hide' end
+           end
 },
 date2 = {
     type="text",
     name='time',        arg='%Y %m %d / %a',
     x=-4,                          y=33,   relativeto='abs_scr2',
     align_x='right',
-    hideeval='${if_match "${battery_short}" != "U"}show${else}hide${endif}', 
---    x=conky_window.width-200,      y=24,
+--    hideeval='${if_match "${battery_short}" != "U"}show${else}hide${endif}', 
     prefix='',                     suffix='',
     text_fg_colour=color_txt1,     text_fg_alpha=0.7,
     prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
@@ -420,6 +436,11 @@ date2 = {
     size=10,
     slant=CAIRO_FONT_SLANT_NORMAL,
     face=CAIRO_FONT_WEIGHT_BOLD,
+    hideonvalue=0,
+    tick = function(data)
+              local str = conky_parse('${battery_short}')
+              if str == 'U' then data.hide = 'hide' end
+           end
 },
 
 --{
@@ -705,7 +726,7 @@ wifi = {
     alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
     tick = function(data)
               -- set wifi values and dynamic visuals
-              local file = io.popen("iwconfig wlan0 2>/dev/null|tr -d \'\\n\'|perl -pe \'s/(\\S*).*ESSID:\"?(\[^\" ]*)\"?.*Access Point: (\\S*).*Tx-Power=(\\S*)(.*Link Quality=(\\d+\\/\\d+))?.*/\\1|\\2|\\3|\\4|\\6\\|n/\'")
+              local file = io.popen("iwconfig wlan0 2>/dev/null|tr -d \'\\n\'|perl -pe \' /(\\S*).*/;$ifc=$1;  /ESSID:\"?(\[^\" ]*)\"?/;$essid=$1;  /Access Point: (\\S*)/;$ap=$1;  /Tx-Power=(\\S*)/;$txp=$1;  /Link Quality=(\\d+\\/\\d+)/;$lq=$1;  $_=\"$ifc|$essid|$ap|$txp|$lq|\"; \'")
               local wifi= file:read("*a")
               file:close()
               --        print ("wifi: "..wifi)
@@ -720,7 +741,7 @@ wifi = {
               else
                  Nlink = 0
               end
---                      print ("wifi "..Niface.."/"..Nessid.."/"..Nap.."/"..Npow.."/"..Nlink)
+              --       print ("wifi "..Niface.."/"..Nessid.."/"..Nap.."/"..Npow.."/"..Nlink)
 
               data.hideeval         = nil
               if Niface == nil or string.len(Niface) < 1 then
@@ -836,11 +857,11 @@ btime = {
 
 
 
-{
+ssh_mon = {
     type="text",
     name='tcp_portmon',        arg='22 23 count',
     hideeval='${if_match ${tcp_portmon 22 23 count} < 1}hide${else}show${endif}', 
-    x=720,                        y=32,         relativeto='screen2_l',
+    x=720,                         y=32,         relativeto='screen2_l',
     prefix='SSH:',                 suffix='',
     text_fg_colour=color_txt1,     text_fg_alpha = 0.7,
     prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
@@ -850,19 +871,37 @@ btime = {
     slant=CAIRO_FONT_SLANT_NORMAL,
     face=CAIRO_FONT_WEIGHT_BOLD,
 },
---{
---    type="text",
---    name='tcp_portmon',        arg='22 23 rhost 0',
---    x=2540,                        y=16,
---    prefix='PRIV:',                 suffix='',
---    text_fg_colour=color_txt1,     text_fg_alpha=1,
---    prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
---    suffix_fg_colour=color_txt3,   suffix_fg_alpha=1,
---    font=font,
---    size=12,
---    slant=CAIRO_FONT_SLANT_NORMAL,
---    face=CAIRO_FONT_WEIGHT_BOLD,
---},
+ssh_mon_host0 = {
+    type="text",
+    name='tcp_portmon',        arg='22 23 rip 0',
+    hideeval='${if_match ${tcp_portmon 22 23 count} < 1}hide${else}show${endif}', 
+    x=8,                           y=0,
+    relativeto='ssh_mon',          relativebyx='true', 
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt2,     text_fg_alpha = 0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=12,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+},
+ssh_mon_host1 = {
+    type="text",
+    name='tcp_portmon',        arg='22 23 rip 1',
+    hideeval='${if_match ${tcp_portmon 22 23 count} < 2}hide${else}show${endif}', 
+    x=8,                           y=0,
+    relativeto='ssh_mon_host0',    relativebyx='true', 
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt2,     text_fg_alpha = 0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=12,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+},
+
 -- {
 --      type="text",
 --      name='acpiacadapter',           arg='',
@@ -912,13 +951,29 @@ snort = {
     type="image",
 --    name='',           arg='',
     value=icon_path..'mail.xpm',
-    hideeval='${if_match "${exec checkgmail >/dev/null; if [[ $? -eq 0 ]]; then echo -n yes; else echo -n no; fi}" == "no"}hide${else}show${endif}', 
-    rate=600,
+-- perl -pe 's/(\d*):.*/\1/; $total+= $_;  $_="$total\n";' ~/.thunderbird/*/unread-counts |tail -1
+--    hideeval='${if_match "${exec checkgmail >/dev/null; if [[ $? -eq 0 ]]; then echo -n yes; else echo -n no; fi}" == "no"}hide${else}show${endif}', 
+--    hideeval='${if_match "${exec perl -pe \'s/(\d*):.*/\\1/; if ($_ > 0){exit 42;}\' ~/.thunderbird/*/unread-counts; if [[ $? -eq 42 ]]; then echo -n yes; else echo -n no; fi}" == "no"}hide${else}show${endif}', 
+--    rate=600,
     x=1320,                         y=16, --        relativeto='bat',
  --   w=16,                           h=16,
     onclick = function(data, x, y)
                  os.execute("((firefox \'https://mail.google.com/mail/?tab=wm#inbox\')&)")
-              end
+    end,
+    tick = function(data)
+       local file = io.popen("perl -pe \'s/(\d*):.*/\1/; $t+= $_;  $_=\"$t\n\";\' ~/.thunderbird/*/unread-counts |tail -1")
+       if file ~= nil then
+          local countline = file:read("*line")
+          file:close()
+          incount  = tonumber(countline)
+          if incount > 0 then
+             data.hideeval = 'show'
+          else
+             data.hideeval = 'hide'
+          end
+       end
+    end
+
 },
 iptssh = {
     type="image",
@@ -996,6 +1051,8 @@ netdngauge1 = {
     caption_weight=1,                  caption_size=10.0,
     caption_fg_colour=0xFFFFFF,        caption_fg_alpha=0.5,
     caption_x=16,                      caption_y=0,
+    alert_high=60,
+    alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
 },
 netupgauge1 = {
     type="gauge",
@@ -1019,6 +1076,8 @@ netupgauge1 = {
     caption='',
     caption_weight=1,                  caption_size=10.0,
     caption_fg_colour=0xFFFFFF,        caption_fg_alpha=0.5,
+    alert_high=40,
+    alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
 },
 netdown1 = {
     type="text",
@@ -1046,7 +1105,95 @@ netup1 = {
     slant=CAIRO_FONT_SLANT_NORMAL,
     face=CAIRO_FONT_WEIGHT_BOLD,
 },
+netdownproc1 = {
+    type="text",
+--    name='downspeed',
+    arg=net_iface,
+--    cmd='netstat  -ntup 2>/dev/null|grep -v 127.0.0.1|grep -v _WAIT|grep -v -E \'^[^ ]+[ ]+0[ ]+[0-0]+[ ]+\'|tail -n +3|sort -k2 -r|head -1|awk \'{print $7}\'',  --|cut -d \'/\' -f 2
+    x=-30,              y=-16,      relativeto='netdngauge1',  align_x='right', --relativebyx='true', 
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt2,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=font_size_sm, --12,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+    value='starting',    alsoupdate='netupproc1',
+    tick = function(data)
+              local iface = data.arg
+              local tmpfile=os.getenv('HOME').."/tmp/topnetproc-"..iface
 
+              if (data.last_iface ~= nil and iface ~= data.last_iface) then
+                 data.shutdown(data)
+              end
+
+--              if (data == nil) then print ("data is nil") end
+              if (data.last_iface == nil or data.last_iface == '') then
+                 print("(re)starting monitor for"..tmpfile);
+                 os.execute("pkill -9 -f \'topnetproc.*"..tmpfile.."\'")
+                 os.execute("screen -D -m topnetproc "..iface.." "..tmpfile..">>/dev/null &")
+                 data.value = 'waiting'
+                 data.last_iface = iface
+              else
+                 local file=io.open(tmpfile)
+                 if file ~= nil then
+                    rates = file:read("*l") do
+                       if rates ~= nil then
+                          local s,f,upproc=string.find(rates,"(.*)|")
+                          local s,f,downproc=string.find(rates,"|(.*)", f)
+                          if  downproc ~= nil then
+                             data.value=downproc
+                          else
+                             data.value = '-'
+                          end
+                          if gauge[data.alsoupdate] ~= nil then
+                             if upproc ~= nil then
+                                 gauge[data.alsoupdate].value=upproc
+                             else
+                                gauge[data.alsoupdate].value = '-'
+                             end
+                          end
+                       else
+                          data.value = "-nil-"
+                       end
+                    end
+                    file:close()
+                 else
+                    print("cant open file "..tmpfile)
+                    data.value = "nio"
+                 end
+              end
+            end,
+    shutdown = function(data)
+                  if data.last_iface ~= '' then
+                     local tmpfile=os.getenv('HOME').."/tmp/topnetproc-"..data.last_iface
+                     os.execute("pkill -9 -f \'topnetproc.*"..tmpfile.."\'")
+                     print("shutdown called for "..tmpfile)
+                     data.last_iface = ''
+                     os.execute("screen -wipe")
+                  end
+    end,
+    onclick = function(data, x, y)
+       -- cause the monitor to restart when you click
+       data.shutdown(data)
+    end
+},
+netupproc1 = {
+    type="text",
+--    name='downspeed',              arg=net_iface,
+    value='starting',
+--    cmd='netstat  -ntup 2>/dev/null|grep -v 127.0.0.1|grep -v _WAIT|grep -v -E \'^[^ ]+[ ]+[0-9]+[ ]+0[ ]+\'|tail -n +3|sort -k3 -r|head -1|awk \'{print $7}\'',   -- |cut -d \'/\' -f 2
+    x=-30,              y=0,      relativeto='netupgauge1',  align_x='right', --relativebyx='true', 
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt2,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=font_size_sm, --12,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+},
 
 
 mpd_gauge = {
@@ -1154,6 +1301,12 @@ function compute_relative(data)
     if gauge[relativeto].drawn_x ~= nil then
        x = x + gauge[relativeto].drawn_x;
        y = y + gauge[relativeto].drawn_y;
+       if data.relativebyx ~= nil and gauge[relativeto].extent_x ~= nil then
+          x = x + gauge[relativeto].extent_x;
+       end
+       if data.relativebyy ~= nil and gauge[relativeto].extent_y ~= nil then
+          y = y + gauge[relativeto].extent_y;
+       end
     elseif relativeto ~= 'screen1_l' and
            relativeto ~= 'screen1_r' and
            relativeto ~= 'screen2_l' and
@@ -1326,7 +1479,10 @@ function draw_text_field(display, data, value)
     cairo_set_font_size (display, font_size)
 
     local extents=cairo_text_extents_t:create()
-    cairo_text_extents(display, value, extents)
+    if value == nil then
+       value = ''
+    end
+    cairo_text_extents(display, data['prefix']..value..data['suffix'], extents)
     tolua.takeownership(extents)
     local width=extents.width
     local height=extents.height
@@ -1673,7 +1829,7 @@ function conky_main()
        end
 
 -- dynamically create and destroy network interface monitors
-       local file = io.popen("ifconfig -s|tail -n +2|cut -d ' ' -f 1|grep -v -e 'lo' -e 'virbr'")
+       local file = io.popen("ifconfig -s|tail -n +2|cut -d ' ' -f 1|grep -v -e 'lo' -e 'virbr' -e '.*:'")
        local count=1
        while true do
           local iface = file:read("*line")
@@ -1689,22 +1845,31 @@ function conky_main()
                 print ('creating net monitor '..count..' for '..iface)
                 gauge['netdngauge'..count]  = deepcopy(gauge['netdngauge1'])
                 gauge['netdown'..count]     = deepcopy(gauge['netdown1'])
+                gauge['netdownproc'..count] = deepcopy(gauge['netdownproc1'])
+                gauge['netdownproc'..count].last_iface='';
                 gauge['netupgauge'..count]  = deepcopy(gauge['netupgauge1'])
                 gauge['netup'..count]       = deepcopy(gauge['netup1'])
+                gauge['netupproc'..count]   = deepcopy(gauge['netupproc1'])
+                gauge['netupproc'..count].last_iface='';
              end
              gauge['netdngauge'..count].relativeto  = 'netdngauge'..(count - 1)
-             gauge['netdngauge'..count].x           = 100
+             gauge['netdngauge'..count].x           = 180
              gauge['netdngauge'..count].y           = 0
              gauge['netdown'..count].relativeto     = 'netdngauge'..count
+             gauge['netdownproc'..count].relativeto = 'netdngauge'..count
+             gauge['netdownproc'..count].alsoupdate = 'netupproc'..count
              gauge['netupgauge'..count].relativeto  = 'netdngauge'..count
              gauge['netup'..count].relativeto       = 'netdngauge'..count
+             gauge['netupproc'..count].relativeto   = 'netdngauge'..count
           end
           
-          gauge['netdngauge'..count].caption = iface
-          gauge['netdngauge'..count].arg = iface
-          gauge['netupgauge'..count].arg = iface
-          gauge['netdown'..count].arg = iface
-          gauge['netup'..count].arg = iface
+          gauge['netdngauge'..count].caption        = iface
+          gauge['netdngauge'..count].arg            = iface
+          gauge['netupgauge'..count].arg            = iface
+          gauge['netdown'..count].arg               = iface
+          gauge['netup'..count].arg                 = iface
+          gauge['netdownproc'..count].arg           = iface;
+          gauge['netupproc'..count].arg             = iface;
 --          print ("iface "..iface..' is '..count..' relative to '..gauge['netdngauge'..count].relativeto..' at x='..gauge['netdngauge'..count].x)
           count = count + 1
        end
@@ -1715,8 +1880,10 @@ function conky_main()
           print ('removing net monitor '..count..' for '..gauge['netdngauge'..count].caption)
           gauge['netdngauge'..count] = nil
           gauge['netdown'..count] = nil
+          gauge['netdownproc'..count] = nil
           gauge['netupgauge'..count] = nil
           gauge['netup'..count] = nil
+          gauge['netupproc'..count] = nil
           count = count + 1
        end
 
@@ -1754,7 +1921,7 @@ function conky_main()
            gauge['layout1'].x = 20
            gauge['workspacevis'].relativeto = 'workspace2'
            gauge['netdngauge1'].relativeto = 'screen1_l'
-           gauge['netdngauge1'].x = 1500
+           gauge['netdngauge1'].x = 1450
         end
            gauge['abs_left']  =      {x=0,                      y=0}
            gauge['abs_right'] =      {x=conky_window.width,     y=0}
@@ -1796,4 +1963,10 @@ end
 
 function conky_shutdown()
    mouse_shutdown("status bar")
+
+    for i in pairs(gauge) do
+       if (i ~= nil and gauge ~= nil and gauge[i].shutdown ~= nil) then
+          gauge[i].shutdown(gauge[i])
+       end
+    end
 end
