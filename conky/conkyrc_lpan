@@ -48,4 +48,6 @@ lua_shutdown_hook shutdown
 
 TEXT
 
-# ${voffset -100} ${mpd_status}
+${voffset -100} ${mpd_status}
+# ${hddtemp /dev/sdb}
+#${voffset -100} ${battery_short}
