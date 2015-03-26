@@ -7,23 +7,45 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector ["#212526" "#ff4b4b" "#b4fa70" "#fce94f" "#729fcf" "#ad7fa8" "#8cc4ff" "#eeeeec"])
+ '(adaptive-wrap-extra-indent 2)
+ '(ansi-color-names-vector
+   ["#212526" "#ff4b4b" "#b4fa70" "#fce94f" "#729fcf" "#ad7fa8" "#8cc4ff" "#eeeeec"])
  '(backup-by-copying t)
  '(backup-directory-alist (quote (("." . "~/tmp/ebak"))))
  '(bm-buffer-persistence t)
  '(bm-repository-file "~/.emacs.d/bm-repository")
- '(c-default-style (quote ((c-mode . "msytsma") (c++-mode . "msytsma") (java-mode . "eclipse-java") (awk-mode . "awk") (other . "gnu"))))
+ '(c-default-style
+   (quote
+    ((c-mode . "msytsma")
+     (c++-mode . "msytsma")
+     (java-mode . "eclipse-java")
+     (awk-mode . "awk")
+     (other . "gnu"))))
  '(comint-scroll-to-bottom-on-input t)
  '(compilation-scroll-output (quote first-error))
  '(cua-mode t nil (cua-base))
  '(custom-enabled-themes (quote (bluespider)))
- '(custom-safe-themes (quote ("119e21c262218098a8f508cbc4bf93839d8f0c3035c9d2b1d5794de6159e7b4b" "0c6a412fae52c01888f4cca695d5c77d9912ff864494dc9b2cf087117e57a432" "08d13adf965b11cae425f4bb0ad8aec94417f2fcc84fde85451b17c280a8c4f0" "76a7058dc3c8aff1760f4b49a7faca35641c90c64d535e9bd76e51d69dd17e2a" default)))
+ '(custom-safe-themes
+   (quote
+    ("119e21c262218098a8f508cbc4bf93839d8f0c3035c9d2b1d5794de6159e7b4b" "0c6a412fae52c01888f4cca695d5c77d9912ff864494dc9b2cf087117e57a432" "08d13adf965b11cae425f4bb0ad8aec94417f2fcc84fde85451b17c280a8c4f0" "76a7058dc3c8aff1760f4b49a7faca35641c90c64d535e9bd76e51d69dd17e2a" default)))
  '(delete-old-versions (quote other))
  '(desktop-files-not-to-save "^$")
- '(desktop-minor-mode-table (quote ((auto-fill-function auto-fill-mode) (vc-mode nil) (vc-dired-mode nil) (erc-track-minor-mode nil) (savehist-mode nil) (icicle-mode nil) (undo-tree-mode nil))))
+ '(desktop-minor-mode-table
+   (quote
+    ((auto-fill-function auto-fill-mode)
+     (vc-mode nil)
+     (vc-dired-mode nil)
+     (erc-track-minor-mode nil)
+     (savehist-mode nil)
+     (icicle-mode nil)
+     (undo-tree-mode nil))))
  '(desktop-save t)
  '(desktop-save-mode t)
  '(dired-dwim-target t)
+ '(display-buffer-alist
+   (quote
+    (("" display-buffer-reuse-window
+      (reusable-frames . t)))))
  '(eclim-eclipse-dirs (quote ("~/lib/eclipse/")))
  '(ediff-split-window-function (quote split-window-horizontally))
  '(ediff-window-setup-function (quote ediff-setup-windows-plain))
@@ -32,8 +54,20 @@
  '(global-auto-revert-mode t)
  '(global-undo-tree-mode t)
  '(help-at-pt-display-when-idle t nil (help-at-pt))
+ '(history-delete-duplicates t)
  '(ibuffer-expert t)
- '(ibuffer-formats (quote ((mark modified read-only " " (name 32 32 :left :elide) " " (size 9 -1 :right) " " (mode 16 16 :left :elide) " " filename-and-process) (mark " " (name 16 -1) " " filename))))
+ '(ibuffer-formats
+   (quote
+    ((mark modified read-only " "
+           (name 32 32 :left :elide)
+           " "
+           (size 9 -1 :right)
+           " "
+           (mode 16 16 :left :elide)
+           " " filename-and-process)
+     (mark " "
+           (name 16 -1)
+           " " filename))))
  '(ibuffer-show-empty-filter-groups nil)
  '(indent-tabs-mode nil)
  '(indicate-empty-lines t)
@@ -42,7 +76,7 @@
  '(mouse-yank-at-point t)
  '(org-agenda-files (quote ("~/my.org")))
  '(save-place t nil (saveplace))
- '(scroll-bar-mode (quote left))
+ '(scroll-bar-mode nil)
  '(scroll-conservatively 100000)
  '(scroll-margin 10)
  '(scroll-preserve-screen-position 1)
@@ -68,6 +102,15 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 (let ((default-directory "~/.emacs.d/elpa"))
   (normal-top-level-add-subdirs-to-load-path))
+
+
+;; (defadvice handle-delete-frame (around my-handle-delete-frame-advice activate)
+;;       "Ask for confirmation before deleting the last frame"
+;;       (let ((frame   (posn-window (event-start event)))
+;;             (numfrs  (length (visible-frame-list))))
+;;         (when (or (> numfrs 1) (y-or-n-p "Really exit Emacs? "))
+;;           ad-do-it)))
+
 
 
 (add-to-list 'auto-mode-alist '("\\.fsm\\'" . c-mode))
@@ -101,7 +144,7 @@
 (c-add-style '"eclipse-java"
              '((c-basic-offset . 4)
                (tab-width . 4)
-               (indent-tabs-mode t)
+               (indent-tabs-mode . t)
                (c-comment-only-line-offset . (0 . 0))
                ;; the following preserves Javadoc starter lines
                (c-offsets-alist . ((inline-open . 0)
@@ -121,13 +164,37 @@
                                    (arglist-cont-nonempty . ++)
                                    )))
              )
+
+(c-add-style '"spider-java"
+             '((c-basic-offset . 4)
+               (tab-width . 4)
+               (indent-tabs-mode . nil)
+               (c-comment-only-line-offset . (0 . 0))
+               ;; the following preserves Javadoc starter lines
+               (c-offsets-alist . ((inline-open . 0)
+                                   (topmost-intro-cont    . +)
+                                   (statement-block-intro . +)
+                                   (knr-argdecl-intro     . 5)
+                                   (substatement-open     . 0)
+                                   (substatement-label    . +)
+                                   (label                 . +)
+                                   (statement-case-open   . +)
+                                   (statement-cont        . +)
+                                   (arglist-intro  . c-lineup-arglist-intro-after-paren)
+                                   (arglist-close  . c-lineup-arglist)
+                                   (access-label   . 0)
+                                   (inher-cont     . c-lineup-java-inher)
+                                   (func-decl-cont . c-lineup-java-throws)
+                                   (arglist-cont-nonempty . ++)
+                                   )))
+             )
+
+
 ;; Fix java 1.5 annotation indentation
 (require 'java-mode-indent-annotations)
 (add-hook 'java-mode-hook
           '(lambda ()
              (java-mode-indent-annotations-setup)))
-
-
 
 (setq c-mode-common-hook
       '(lambda ()
@@ -152,6 +219,9 @@
          (modify-syntax-entry ?_ "w" c++-mode-syntax-table)
          (modify-syntax-entry ?_ "w" c-mode-syntax-table)
          (linum-mode t)
+         (column-number-mode t)
+         (rainbow-delimiters-mode)
+         (adaptive-wrap-prefix-mode t)
 ))
 
 ;; (setq c-default-style (append '((c-mode     . "msytsma")
@@ -186,6 +256,11 @@
 ;; enable remote file editing
 (require 'tramp)
 (setq tramp-default-method "scp")
+
+;;(setq vc-ignore-dir-regexp
+;;      (format "\\(%s\\)\\|\\(%s\\)"
+;;              vc-ignore-dir-regexp
+;;              tramp-file-name-regexp))
 
 
 ;; enabel cscope C-c s commands
@@ -327,6 +402,9 @@
                            (filename . "/home/msytsma/\\.")))
 ;;                           (filename . (concat (expand-file-name "~/") "\\."))))
                    ("diskless" (filename . "/var/lib/diskless"))
+                   ("css" (or
+                           (filename . "/home/matt/css/")
+                           (filename . "/home/msytsma/css")))
                    ("etc" (or
                            (filename . "/etc/")
                            (filename . "/var/lib/portage/")))
@@ -377,7 +455,7 @@
 (global-set-key (kbd "<C-S-iso-lefttab>") 'transpose-buffers)
 
 ;; enable a single frame mode for speedbar
-(require 'sr-speedbar)
+;; (require 'sr-speedbar)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Simple Bookmarks ;;;;;
 ;;(setq bm-restore-repository-on-load t)
@@ -608,17 +686,40 @@ This is an internal function used by Auto-Revert Mode."
   (compile (concat "make -k && make -k -C " (project-root))))
 
 
+;; fix the error grepping for maven compile output
+(require 'compile)
+(add-to-list 'compilation-error-regexp-alist 'mvn)
+(add-to-list 'compilation-error-regexp-alist-alist
+              '(mvn "^\\(\\[ERROR\\] \\|\\[WARNING\\] \\)?\\(.*\\):\\[\\([0-9]*\\),\\([0-9]*\\)\\]" 2 3 4))
+
+
 (setq initial-scratch-message "
 ;;  {o,o}
 ;; ./)_)
 ;;   \" \"
 ;;
-;;")
+;;
+
+")
 
 
 ;; little function to help when scratchpadding binary calculations
+;; (require 'calc-bin)
 (defun  as-binary(x)
   (interactive)
   (concat "#b"
           (let ((calc-number-radix 2))
             (math-format-radix x))))
+
+
+;; (add-hook 'focus-in-hook
+;;           '(lambda ()
+;;              (flash-line-highlight)))
+;; (add-hook 'window-configuration-change-hook
+;;           '(lambda ()
+;;              (flash-line-highlight)))
+
+
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
+(global-set-key (kbd "C-+=") 'er/contract-region)
