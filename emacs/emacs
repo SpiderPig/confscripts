@@ -22,6 +22,7 @@
      (awk-mode . "awk")
      (other . "gnu"))))
  '(comint-scroll-to-bottom-on-input t)
+ '(comment-multi-line t)
  '(compilation-scroll-output (quote first-error))
  '(cua-mode t nil (cua-base))
  '(custom-enabled-themes (quote (bluespider)))
@@ -38,7 +39,9 @@
      (erc-track-minor-mode nil)
      (savehist-mode nil)
      (icicle-mode nil)
-     (undo-tree-mode nil))))
+     (undo-tree-mode nil)
+     (indent-tabs-mode nil)
+     (global-eclim-mode nil))))
  '(desktop-save t)
  '(desktop-save-mode t)
  '(dired-dwim-target t)
@@ -408,9 +411,15 @@
                    ("etc" (or
                            (filename . "/etc/")
                            (filename . "/var/lib/portage/")))
-                   ("WCCD-GUI" (filename . "/home/msytsma/nwdc/spiderman/WCCD_repo/GUI/"))
-                   ("WCCD-COM" (filename . "/home/msytsma/nwdc/spiderman/WCCD_repo/COMMON/"))
-                   ("WCCD" (filename . "/home/msytsma/nwdc/spiderman/"))
+                   ("WCCD-GUI" (or
+                                (filename . "/home/msytsma/nwdc/spiderman/WCCD_repo/GUI/")
+                                (filename . "/home/msytsma/nwdc/JSAF_WCCD_repo/src/JAWS/GUI/")))
+                   ("WCCD-COM" (or
+                                (filename . "/home/msytsma/nwdc/spiderman/WCCD_repo/COMMON/")
+                                (filename . "/home/msytsma/nwdc/JSAF_WCCD_repo/src/JAWS/COMMON/")))
+                   ("WCCD" (or
+                            (filename . "/home/msytsma/nwdc/spiderman/")
+                            (filename . "/home/msytsma/nwdc/JSAF_WCCD_repo/src/JAWS/")))
                    ("Octavius" (filename . "/home/msytsma/nwdc/JSAF_WCCD_repo/"))
                    ("JBUS" (filename . "/home/msytsma/nwdc/JBUS_repo/"))
 ))))
@@ -651,7 +660,6 @@ This is an internal function used by Auto-Revert Mode."
         (vc-find-file-hook)))))
 
 
-
 ;; one stop shop for build module and link project
 ;; recurses up the tree till it finds the project root and adds a link command for the whole project
 (defun find-proj-root ()
@@ -679,11 +687,11 @@ This is an internal function used by Auto-Revert Mode."
                           (set (make-local-variable 'compile-command)
                                (concat "make -k && make -k -C " (project-root)))))
 
-;; define a function to call from the mini buffer to build project
-(defun compilel ()
-  (interactive)
-  ;; Compile current buffer AND the src/JSAF dir
-  (compile (concat "make -k && make -k -C " (project-root))))
+;; ;; define a function to call from the mini buffer to build project
+;; (defun compilel ()
+;;   (interactive)
+;;   ;; Compile current buffer AND the src/JSAF dir
+;;   (compile (concat "make -k && make -k -C " (project-root))))
 
 
 ;; fix the error grepping for maven compile output
@@ -722,4 +730,4 @@ This is an internal function used by Auto-Revert Mode."
 
 (require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
-(global-set-key (kbd "C-+=") 'er/contract-region)
+(global-set-key (kbd "C-+") 'er/contract-region)
