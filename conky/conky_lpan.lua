@@ -30,17 +30,24 @@ net_iface='eth0'
 -- define the physical screen layout. 
 screens = {
 {
-   width='0',
+   width='1920',
    head=1,            -- corresponds to the xwindow screen order
-   xpos='2',            -- viewport position
+   xpos='1920',            -- viewport position
    connected='yes',
 },
 {
-   width='0',
+   width='1920',
    head=2,
-   xpos='1',
+   xpos='0',
+   connected='yes',
+},
+{
+   width='1920',
+   head=3,
+   xpos='3840',
    connected='yes',
 }
+
 }
 
 -- save state of workspace and screen
@@ -52,6 +59,11 @@ desktops = {
 },
 {
    workspace=2,
+   layout='temp',
+   urgent=0,
+},
+{
+   workspace=3,
    layout='temp',
    urgent=0,
 }
@@ -185,6 +197,28 @@ load = {
     size=12,
     slant=CAIRO_FONT_SLANT_NORMAL,
     face=CAIRO_FONT_WEIGHT_BOLD,
+},
+diskioa = {
+    type="gauge",
+    name='diskio',                arg='',                      max_value=100,
+    x=370,                         y=32,
+    graph_radius=29,
+    graph_thickness=3,
+    graph_start_angle=-90,
+    graph_unit_angle=1.55,          graph_unit_thickness=1.55,
+    graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
+    hand_fg_colour=color_graph1,       hand_fg_alpha=1.0,
+    txt_radius=16,
+    txt_weight=1,                  txt_size=10.0,
+    txt_fg_colour=color_graph1,        txt_fg_alpha=0.8,
+    graduation_radius=20,
+    graduation_thickness=3,        graduation_mark_thickness=2,
+    graduation_unit_angle=9,
+    graduation_fg_colour=color_graph1, graduation_fg_alpha=0.3,
+    caption='',
+    caption_weight=1,              caption_size=10.0,
+    caption_fg_colour=0xFFFFFF,    caption_fg_alpha=0.5,
 },
 memgauge = {
     type="gauge",
@@ -333,10 +367,62 @@ fsbak = {
        end
     end
 },
+fsportmp = {
+    type="gauge",
+    name='fs_used_perc',           arg='/var/tmp/portage',                max_value=100,
+    x=40,                          y=0,            relativeto='fsbak', 
+    graph_radius=14,
+    graph_thickness=4,
+    graph_start_angle=270,
+    graph_unit_angle=3.6,         graph_unit_thickness=3.6,
+    graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
+    hand_fg_colour=color_graph1,       hand_fg_alpha=0,
+    txt_radius=12,
+    txt_weight=1,                  txt_size=10.0,
+    txt_fg_colour=color_graph1,        txt_fg_alpha=0.0,
+    graduation_radius=46,
+    graduation_thickness=0,        graduation_mark_thickness=0,
+    graduation_unit_angle=20,
+    graduation_fg_colour=color_graph1, graduation_fg_alpha=0,
+    caption='P',
+    caption_weight=1,              caption_size=14.0,
+    caption_fg_colour=color_txt1,  caption_fg_alpha=0.7,
+    caption_x=-9,                   caption_y=3,
+    alert_high=85,
+    alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
+    hideeval='${if_mounted /var/tmp/portage}show${else}hide${endif}',
+},
+fsvar = {
+    type="gauge",
+    name='fs_used_perc',           arg='/var/',                max_value=100,
+    x=40,                          y=0,            relativeto='fsbak', 
+    graph_radius=14,
+    graph_thickness=4,
+    graph_start_angle=270,
+    graph_unit_angle=3.6,         graph_unit_thickness=3.6,
+    graph_bg_colour=color_graph1,      graph_bg_alpha=0.3,
+    graph_fg_colour=color_graph1,      graph_fg_alpha=std_graph_fg_alpha,
+    hand_fg_colour=color_graph1,       hand_fg_alpha=0,
+    txt_radius=12,
+    txt_weight=1,                  txt_size=10.0,
+    txt_fg_colour=color_graph1,        txt_fg_alpha=0.0,
+    graduation_radius=46,
+    graduation_thickness=0,        graduation_mark_thickness=0,
+    graduation_unit_angle=20,
+    graduation_fg_colour=color_graph1, graduation_fg_alpha=0,
+    caption='v',
+    caption_weight=1,              caption_size=14.0,
+    caption_fg_colour=color_txt1,  caption_fg_alpha=0.7,
+    caption_x=-9,                   caption_y=3,
+    alert_high=85,
+    alert_graph_fg_colour=color_alert,     alert_graph_bg_colour=color_alert,
+    hideeval='${if_mounted /var}show${else}hide${endif}',
+},
 host = {
     type="text",
     name='nodename_short',         arg='',
-    x=0,                           y=20,
+    x=0,                           y=20,       relativeto='screen1_l',
     prefix='',                     suffix='',
     text_fg_colour=color_txt1,     text_fg_alpha=0.7,
     prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
@@ -372,12 +458,24 @@ host_s2 = {
     slant=CAIRO_FONT_SLANT_NORMAL,
     face=CAIRO_FONT_WEIGHT_BOLD,
 },
+host_s3 = {
+    type="text",
+    name='nodename_short',         arg='',
+    x=0,                           y=20,       relativeto='screen3_l',
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt1,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
+    suffix_fg_colour=color_txt1,   suffix_fg_alpha=1,
+    font=font,
+    size=font_size,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+},
 time = {
     type="text",
     name='time',        arg='%H:%M:%S',
-    x=-10,                          y=22,   relativeto='abs_right',
+    x=-10,                          y=22,   relativeto='screen1_r',
     align_x='right',
---    x=conky_window.width-200,      y=24,
     prefix='',                     suffix='',
     text_fg_colour=color_txt1,     text_fg_alpha=0.7,
     prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
@@ -390,9 +488,8 @@ time = {
 date = {
     type="text",
     name='time',        arg='%Y %m %d / %a',
-    x=-4,                          y=33,   relativeto='abs_right',
+    x=-4,                          y=33,   relativeto='screen1_r',
     align_x='right',
---    x=conky_window.width-200,      y=24,
     prefix='',                     suffix='',
     text_fg_colour=color_txt1,     text_fg_alpha=0.7,
     prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
@@ -405,9 +502,8 @@ date = {
 time2 = {
     type="text",
     name='time',        arg='%H:%M:%S',
-    x=-10,                          y=22,   relativeto='abs_scr2',
+    x=-10,                          y=22,   relativeto='screen2_r',
     align_x='right',
---    hideeval='${if_match "${battery_short}" != "U"}show${else}hide${endif}', 
     prefix='',                     suffix='',
     text_fg_colour=color_txt1,     text_fg_alpha=0.7,
     prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
@@ -416,18 +512,16 @@ time2 = {
     size=16,
     slant=CAIRO_FONT_SLANT_NORMAL,
     face=CAIRO_FONT_WEIGHT_BOLD,
-    hideonvalue=0,
-    tick = function(data)
-              local str = conky_parse('${battery_short}')
-              if str == 'U' then data.hide = 'hide' end
-           end
+--    tick = function(data)
+--              local str = conky_parse('${battery_short}')
+--              if str == 'U' then data.hide = 'hide' end
+--           end
 },
 date2 = {
     type="text",
     name='time',        arg='%Y %m %d / %a',
-    x=-4,                          y=33,   relativeto='abs_scr2',
+    x=-4,                          y=33,   relativeto='screen2_r',
     align_x='right',
---    hideeval='${if_match "${battery_short}" != "U"}show${else}hide${endif}', 
     prefix='',                     suffix='',
     text_fg_colour=color_txt1,     text_fg_alpha=0.7,
     prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
@@ -436,11 +530,38 @@ date2 = {
     size=10,
     slant=CAIRO_FONT_SLANT_NORMAL,
     face=CAIRO_FONT_WEIGHT_BOLD,
-    hideonvalue=0,
-    tick = function(data)
-              local str = conky_parse('${battery_short}')
-              if str == 'U' then data.hide = 'hide' end
-           end
+--   tick = function(data)
+--             local str = conky_parse('${battery_short}')
+--             if str == 'U' then data.hide = 'hide' end
+--          end
+},
+time3 = {
+    type="text",
+    name='time',        arg='%H:%M:%S',
+    x=-10,                          y=22,   relativeto='screen3_r',
+    align_x='right',
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt1,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=1,
+    font=font,
+    size=16,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+},
+date3 = {
+    type="text",
+    name='time',        arg='%Y %m %d / %a',
+    x=-4,                          y=33,   relativeto='screen3_r',
+    align_x='right',
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt1,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=1,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=1,
+    font=font,
+    size=10,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
 },
 
 --{
@@ -688,6 +809,32 @@ workspace2 = {
 layout2 = {
     type="text",                   arg='',
     x=20,                          y=-8,      relativeto='workspace2',
+    value='',
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt3,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt3,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=10,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+},
+workspace3 = {
+    type="text",                   arg='',
+    x=140,                         y=24,       relativeto='abs_scr3',
+    value='',
+    prefix='',                     suffix='',
+    text_fg_colour=color_txt1,     text_fg_alpha=0.7,
+    prefix_fg_colour=color_txt1,   prefix_fg_alpha=0.7,
+    suffix_fg_colour=color_txt3,   suffix_fg_alpha=0.7,
+    font=font,
+    size=16,
+    slant=CAIRO_FONT_SLANT_NORMAL,
+    face=CAIRO_FONT_WEIGHT_BOLD,
+},
+layout3 = {
+    type="text",                   arg='',
+    x=20,                          y=-8,      relativeto='workspace3',
     value='',
     prefix='',                     suffix='',
     text_fg_colour=color_txt3,     text_fg_alpha=0.7,
@@ -1031,7 +1178,7 @@ iptssh = {
 netdngauge1 = {
     type="gauge",
     name='downspeedf',                arg=net_iface,            max_value=100,
-    value_unit=20,
+    value_unit=40,
     x=380,                             y=32,        relativeto='screen2_l',
     graph_radius=24,
     graph_thickness=3,
@@ -1311,6 +1458,8 @@ function compute_relative(data)
            relativeto ~= 'screen1_r' and
            relativeto ~= 'screen2_l' and
            relativeto ~= 'screen2_r' and
+           relativeto ~= 'screen3_l' and
+           relativeto ~= 'screen3_r' and
            relativeto ~= 'abs_left'  and
            relativeto ~= 'abs_right' and
            relativeto ~= 'abs_scr2'  then
@@ -1678,9 +1827,11 @@ function conky_main()
 
 
 -- examine the monitor configuration
---    if update_num < 5 || update_num % 300 == 0 then
+--    if update_num < 5 || update_num % 10 == 0 then
        for i in pairs(screens) do
           screens[i].head = 0
+          screens[i].xpos = tostring( (1920 * (tonumber(i) - 1)) )
+--          print((tonumber(i)-1) * 1920)
        end
        
        local file = io.popen("xdpyinfo -ext XINERAMA|grep -e ' *head #[0-9]'")
@@ -1688,8 +1839,8 @@ function conky_main()
        while true do
           local xinfo = file:read("*line")
           if xinfo == nil then break end
-          start, finish, width  = string.find(xinfo, "%s*head%s#%d:%s(%d*)")
-          start, finish, xpos   = string.find(xinfo, "x%d* @ (%d*)", finish)
+          local start, finish, width  = string.find(xinfo, "%s*head%s#%d:%s(%d*)")
+          local start, finish, xpos   = string.find(xinfo, "x%d* @ (%d*)", finish)
           screens[count].head    = count
           screens[count].width   = width
           screens[count].xpos    = xpos
@@ -1704,9 +1855,9 @@ function conky_main()
        end
        table.sort(screens, compare)
 
-       --    for i in pairs(screens) do
-       --       print ("screen "..i.." head="..screens[i].head.." xp="..screens[i].xpos.." w="..screens[i].width)
-       --    end
+--           for i in pairs(screens) do
+--              print ("screen "..i.." head="..screens[i].head.." xp="..screens[i].xpos.." w="..screens[i].width)
+--           end
 --    end
 
 -- overide detection of connected monitor
@@ -1714,7 +1865,10 @@ function conky_main()
        if file ~= nil then
           local mondisconected = file:read("*line")
           file:close()
-          if mondisconected == 'yes' then  screens[1].connected = 'no' end
+          if mondisconected == 'yes' then
+             screens[1].connected = 'no'
+             screens[3].connected = 'no'
+          end
        end
 
 
@@ -1753,24 +1907,24 @@ function conky_main()
            end
         end
 
-        if screens[1].connected == 'no' and screens[1].head > 0 then
-           -- if our first screen is not visible then stick its ws number in the list so we see it on the other screen
-           if desktops[screens[1].head].urgent > 0 then vis = vis.."*" end
-           vis = vis..desktops[screens[1].head].workspace.." "
---           print (screens[1].head.." "..desktops[screens[1].head].workspace)
+        local i = 1
+        while i <=3 do
+           if screens[i].connected == 'no' and screens[i].head > 0 then
+              -- if our first screen is not visible then stick its ws number in the list so we see it on the other screen
+              if desktops[screens[i].head].urgent > 0 then vis = vis.."*" end
+              vis = vis..desktops[screens[i].head].workspace.." "
+              --           print (screens[i].head.." "..desktops[screens[i].head].workspace)
+           end
+
+           if screens[i].head > 0 then
+              gauge['workspace'..i].value = desktops[screens[i].head].workspace
+              gauge['layout'..i].value = desktops[screens[i].head].layout
+              if desktops[screens[i].head].urgent == 1 then gauge['workspace'..i].text_fg_colour=color_txt_urgent else gauge['workspace'..i].text_fg_colour=color_txt1 end
+           end
+
+           i = i + 1
         end
 
-
-       if screens[1].head > 0 then
-          gauge['workspace1'].value = desktops[screens[1].head].workspace
-          gauge['layout1'].value = desktops[screens[1].head].layout
-          if desktops[screens[1].head].urgent == 1 then gauge['workspace1'].text_fg_colour=color_txt_urgent else gauge['workspace1'].text_fg_colour=color_txt1 end
-       end
-       if screens[2].head > 0 then
-          gauge['workspace2'].value = desktops[screens[2].head].workspace
-          gauge['layout2'].value = desktops[screens[2].head].layout
-          if desktops[screens[2].head].urgent == 1 then gauge['workspace2'].text_fg_colour=color_txt_urgent else gauge['workspace2'].text_fg_colour=color_txt1 end
-       end
 
        gauge['workspacevis'].value = vis
        local count = 1
@@ -1889,10 +2043,12 @@ function conky_main()
 
 -- set field properties dynamically to allow for shifting when vga is disconnected on a laptop
         if screens[1].connected == 'yes' then
-           gauge['screen1_l'] =      {x=0,                      y=0}
-           gauge['screen1_r'] =      {x=screens[1].width,       y=0}
-           gauge['screen2_l'] =      {x=screens[1].width + 1,   y=0}
-           gauge['screen2_r'] =      {x=conky_window.width,     y=0}
+           gauge['screen1_l'] =      {x=screens[1].xpos,                        y=0}
+           gauge['screen1_r'] =      {x=screens[1].xpos + screens[1].width,     y=0}
+           gauge['screen2_l'] =      {x=screens[2].xpos,                        y=0}
+           gauge['screen2_r'] =      {x=screens[2].xpos + screens[2].width,     y=0}
+           gauge['screen3_l'] =      {x=screens[3].xpos,                        y=0}
+           gauge['screen3_r'] =      {x=screens[3].xpos + screens[3].width,     y=0}
 
            gauge['workspace1'].x = -170
            gauge['workspace1'].relativeto = 'abs_scr2'
@@ -1903,16 +2059,18 @@ function conky_main()
            gauge['layout2'].align_x = 'left'
            gauge['layout2'].x = 20
            gauge['workspacevis'].relativeto = 'workspace1'
-           gauge['netdngauge1'].relativeto = 'screen2_l'
-           gauge['netdngauge1'].x = 380
+--           gauge['netdngauge1'].relativeto = 'screen2_l'
+--           gauge['netdngauge1'].x = 380
         else
-           gauge['screen1_l'] =      {x=screens[1].width + 1,   y=0}
-           gauge['screen1_r'] =      {x=conky_window.width,     y=0}
-           gauge['screen2_l'] =      {x=0,                      y=0}
-           gauge['screen2_r'] =      {x=screens[1].width,       y=0}
+           gauge['screen1_l'] =      {x=screens[2].xpos,                        y=0}
+           gauge['screen1_r'] =      {x=screens[2].xpos + screens[2].width,     y=0}
+           gauge['screen2_l'] =      {x=screens[1].xpos,                        y=0}
+           gauge['screen2_r'] =      {x=screens[1].xpos + screens[1].width,     y=0}
+           gauge['screen3_l'] =      {x=screens[3].xpos,                        y=0}
+           gauge['screen3_r'] =      {x=screens[3].xpos + screens[3].width,     y=0}
 
            gauge['workspace2'].x = -170
-           gauge['workspace2'].relativeto = 'abs_right'
+           gauge['workspace2'].relativeto = 'screen1_r'
            gauge['layout2'].align_x = 'right'
            gauge['layout2'].x = -6
            gauge['workspace1'].x = 140
@@ -1920,14 +2078,24 @@ function conky_main()
            gauge['layout1'].align_x = 'left'
            gauge['layout1'].x = 20
            gauge['workspacevis'].relativeto = 'workspace2'
+--           gauge['netdngauge1'].relativeto = 'screen1_l'
+--           gauge['netdngauge1'].x = 1450
+        end
+
+--        if screens[1].connected ~= 'yes' or
+           if screens[2].head == 0 then
            gauge['netdngauge1'].relativeto = 'screen1_l'
            gauge['netdngauge1'].x = 1450
+        else
+           gauge['netdngauge1'].relativeto = 'screen2_l'
+           gauge['netdngauge1'].x = 380
         end
+
            gauge['abs_left']  =      {x=0,                      y=0}
            gauge['abs_right'] =      {x=conky_window.width,     y=0}
-           gauge['abs_scr2'] =       {x=screens[1].width,       y=0}
+           gauge['abs_scr2'] =       {x=screens[2].xpos,        y=0}
+           gauge['abs_scr3'] =       {x=screens[3].xpos,        y=0}
 
-    
     if update_num > 5 then
         go_gauge_rings(display)
 
